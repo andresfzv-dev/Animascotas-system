@@ -8,6 +8,7 @@ import {
   PawPrint,
   Truck,
   BarChart2,
+  Warehouse,
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import styles from './Sidebar.module.css';
@@ -20,6 +21,7 @@ const navItems = [
   { to: '/mascotas', icon: PawPrint, label: 'Mascotas' },
   { to: '/proveedores', icon: Truck, label: 'Proveedores' },
   { to: '/reportes', icon: BarChart2, label: 'Reportes' },
+  { to: '/inventario', icon: Warehouse, label: 'Inventario' },
 ];
 
 const adminItems = [

@@ -1,0 +1,337 @@
+.container {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  min-height: 480px;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buscadorWrapper {
+  position: relative;
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-white);
+}
+
+.scanIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.buscadorInput {
+  flex: 1;
+  border: none;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: transparent;
+}
+
+.sugerencias {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.sugerencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sugerencia:last-child { border-bottom: none; }
+
+.sugerencia:hover:not(:disabled) {
+  background-color: var(--color-background);
+}
+
+.sugerencia:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sugerenciaInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.sugerenciaNombre {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.sugerenciaVariante {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.sugerenciaDerecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.sugerenciaPrecio {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.sugerenciaStock {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.sinStock { color: var(--color-danger); }
+
+.itemsList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.emptyCart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--color-text-muted);
+  gap: 8px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius-lg);
+}
+
+.emptyCart p {
+  font-weight: 500;
+  font-size: var(--font-size-base);
+}
+
+.emptyCart span {
+  font-size: var(--font-size-sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  gap: 12px;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.itemNombre {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.itemPrecio {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.itemControles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cantBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  color: var(--color-text);
+  transition: var(--transition);
+}
+
+.cantBtn:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.cantBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cantidad {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}
+
+.subtotal {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  min-width: 80px;
+  text-align: right;
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition);
+}
+
+.deleteBtn:hover {
+  color: var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+.right {}
+
+.resumen {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+}
+
+.resumenTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.resumenField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resumenLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.resumenSelect, .resumenInput {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  width: 100%;
+  transition: var(--transition);
+}
+
+.resumenSelect:focus, .resumenInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.metodoPago {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metodoBtn {
+  padding: 10px 8px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--color-text-muted);
+}
+
+.metodoBtn:hover { border-color: var(--color-primary); }
+
+.metodoActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.totalValue {
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+}
+
+.cambioRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cambioRow strong {
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+}
+
+.cambioNegativo strong { color: var(--color-danger); }

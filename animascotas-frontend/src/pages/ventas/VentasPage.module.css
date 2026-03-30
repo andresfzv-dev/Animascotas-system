@@ -1,0 +1,35 @@
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vistaBtns {
+  display: flex;
+  gap: 4px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.vistaBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vistaActive {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}

@@ -1,9 +1,7 @@
 package com.animascotas.animascotas_backend.service;
 
-import com.animascotas.animascotas_backend.domain.entity.Categoria;
-import com.animascotas.animascotas_backend.domain.entity.Presentacion;
-import com.animascotas.animascotas_backend.domain.entity.Producto;
-import com.animascotas.animascotas_backend.domain.entity.Sintoma;
+import com.animascotas.animascotas_backend.domain.entity.*;
+import com.animascotas.animascotas_backend.domain.enums.TipoMovimiento;
 import com.animascotas.animascotas_backend.dto.request.PresentacionRequest;
 import com.animascotas.animascotas_backend.dto.request.ProductoRequest;
 import com.animascotas.animascotas_backend.dto.response.PresentacionResponse;
@@ -11,10 +9,7 @@ import com.animascotas.animascotas_backend.dto.response.ProductoResponse;
 import com.animascotas.animascotas_backend.dto.response.SintomaResponse;
 import com.animascotas.animascotas_backend.exception.BusinessException;
 import com.animascotas.animascotas_backend.exception.ResourceNotFoundException;
-import com.animascotas.animascotas_backend.repository.CategoriaRepository;
-import com.animascotas.animascotas_backend.repository.PresentacionRepository;
-import com.animascotas.animascotas_backend.repository.ProductoRepository;
-import com.animascotas.animascotas_backend.repository.SintomaRepository;
+import com.animascotas.animascotas_backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +26,8 @@ public class ProductoService {
     private final PresentacionRepository presentacionRepository;
     private final CategoriaRepository categoriaRepository;
     private final SintomaRepository sintomaRepository;
+    private final MovimientoInventarioRepository movimientoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public List<ProductoResponse> listarActivos() {
         return productoRepository.findByActivoTrue()
@@ -106,14 +103,20 @@ public class ProductoService {
 
     @Transactional
     public PresentacionResponse agregarPresentacion(String productoId,
-                                                    PresentacionRequest request) {
+                                                    PresentacionRequest request, String usuarioEmail) {
         Producto producto = findProductoOrThrow(productoId);
 
-        if (request.getCodigoBarras() != null
+        if (request.getCodigoBarras() != null && !request.getCodigoBarras().isBlank()
                 && presentacionRepository.existsByCodigoBarras(request.getCodigoBarras())) {
             throw new BusinessException(
                     "Ya existe una presentación con el código de barras: "
                             + request.getCodigoBarras());
+        }
+
+        // Generar código de barras automático si no se proporcionó
+        String codigoBarras = request.getCodigoBarras();
+        if (codigoBarras == null || codigoBarras.isBlank()) {
+            codigoBarras = generarCodigoBarras();
         }
 
         Presentacion presentacion = new Presentacion();
@@ -121,14 +124,47 @@ public class ProductoService {
         presentacion.setVariante(request.getVariante());
         presentacion.setPrecioProveedor(request.getPrecioProveedor());
         presentacion.setPorcentajeGanancia(request.getPorcentajeGanancia());
-        presentacion.setPrecioVenta(calcularPrecioVenta(
-                request.getPrecioProveedor(),
-                request.getPorcentajeGanancia()
-        ));
-        presentacion.setCodigoBarras(request.getCodigoBarras());
-        presentacion.setStockMinimo(request.getStockMinimo());
 
-        return toPresentacionResponse(presentacionRepository.save(presentacion));
+        BigDecimal precioFinal = (request.getPrecioVenta() != null)
+                ? request.getPrecioVenta()
+                : calcularPrecioVenta(request.getPrecioProveedor(), request.getPorcentajeGanancia());
+
+        presentacion.setPrecioVenta(precioFinal);
+
+        presentacion.setCodigoBarras(codigoBarras);
+        presentacion.setStockMinimo(request.getStockMinimo());
+        presentacion.setStock(0);
+
+        Presentacion saved = presentacionRepository.save(presentacion);
+
+        // Registrar stock inicial si es mayor a 0
+        if (request.getStockInicial() != null && request.getStockInicial() > 0) {
+            saved.setStock(request.getStockInicial());
+            presentacionRepository.save(saved);
+
+            Usuario usuario = usuarioRepository.findByEmail(usuarioEmail)
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario", usuarioEmail));
+
+            MovimientoInventario movimiento = new MovimientoInventario();
+            movimiento.setPresentacion(saved);
+            movimiento.setUsuario(usuario);
+            movimiento.setTipo(TipoMovimiento.ENTRADA);
+            movimiento.setCantidad(request.getStockInicial());
+            movimiento.setMotivo("Stock inicial");
+            movimientoRepository.save(movimiento);
+        }
+
+        return toPresentacionResponse(saved);
+    }
+
+    private String generarCodigoBarras() {
+        String codigo;
+        do {
+            codigo = "ANIM" + System.currentTimeMillis() +
+                    String.format("%04d", (int)(Math.random() * 9999));
+            codigo = codigo.substring(0, Math.min(codigo.length(), 20));
+        } while (presentacionRepository.existsByCodigoBarras(codigo));
+        return codigo;
     }
 
     @Transactional
@@ -147,10 +183,13 @@ public class ProductoService {
         presentacion.setVariante(request.getVariante());
         presentacion.setPrecioProveedor(request.getPrecioProveedor());
         presentacion.setPorcentajeGanancia(request.getPorcentajeGanancia());
-        presentacion.setPrecioVenta(calcularPrecioVenta(
-                request.getPrecioProveedor(),
-                request.getPorcentajeGanancia()
-        ));
+
+        BigDecimal precioFinal = (request.getPrecioVenta() != null)
+                ? request.getPrecioVenta()
+                : calcularPrecioVenta(request.getPrecioProveedor(), request.getPorcentajeGanancia());
+
+        presentacion.setPrecioVenta(precioFinal);
+
         presentacion.setCodigoBarras(request.getCodigoBarras());
         presentacion.setStockMinimo(request.getStockMinimo());
 

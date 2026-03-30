@@ -14,11 +14,11 @@
   --color-shadow: rgba(46, 125, 50, 0.1);
 
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
+  --font-size-sm: 1rem;
+  --font-size-base: 1.05rem;
+  --font-size-lg: 1.2rem;
+  --font-size-xl: 1.35rem;
+  --font-size-2xl: 1.6rem;
 
   --border-radius-sm: 4px;
   --border-radius-md: 8px;

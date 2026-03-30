@@ -28,4 +28,10 @@ public class PresentacionRequest {
     @NotNull(message = "El stock mínimo es obligatorio")
     @Min(value = 0, message = "El stock mínimo no puede ser negativo")
     private Integer stockMinimo;
+
+    @Min(value = 0, message = "El stock inicial no puede ser negativo")
+    private Integer stockInicial = 0;
+
+    @DecimalMin(value = "0.0", inclusive = false, message = "El precio de venta debe ser mayor a 0")
+    private BigDecimal precioVenta;
 }
