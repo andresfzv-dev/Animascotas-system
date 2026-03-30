@@ -1,3 +1,26 @@
 spring:
   application:
     name: animascotas-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/animascotas
+    username: animascotas_user
+    password: animascotas_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: "animascotas-secret-key-super-segura-minimo-256-bits-para-hs256-2024"
+    expiration-ms: 86400000

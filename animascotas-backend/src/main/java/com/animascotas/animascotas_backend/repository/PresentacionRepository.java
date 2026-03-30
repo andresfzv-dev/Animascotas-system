@@ -18,4 +18,7 @@ public interface PresentacionRepository extends JpaRepository<Presentacion, Stri
 
     @Query("SELECT p FROM Presentacion p WHERE p.stock <= p.stockMinimo")
     List<Presentacion> findStockBajo();
+
+    @Query("SELECT p FROM Presentacion p JOIN p.sintomas s WHERE s.id = :sintomaId")
+    List<Presentacion> findBySintomaId(String sintomaId);
 }
