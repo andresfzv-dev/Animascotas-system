@@ -1,0 +1,66 @@
+:root {
+  --color-primary: #2E7D32;
+  --color-primary-light: #66BB6A;
+  --color-primary-dark: #1B5E20;
+  --color-background: #E8F5E9;
+  --color-accent: #FFCA28;
+  --color-text: #263238;
+  --color-text-muted: #546E7A;
+  --color-white: #FFFFFF;
+  --color-danger: #D32F2F;
+  --color-danger-light: #FFEBEE;
+  --color-border: #C8E6C9;
+  --color-surface: #FFFFFF;
+  --color-shadow: rgba(46, 125, 50, 0.1);
+
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+
+  --shadow-sm: 0 1px 3px var(--color-shadow);
+  --shadow-md: 0 4px 6px var(--color-shadow);
+  --shadow-lg: 0 10px 15px var(--color-shadow);
+
+  --transition: all 0.2s ease;
+
+  --sidebar-width: 260px;
+  --header-height: 64px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  line-height: 1.5;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: var(--font-family);
+}
+
+input, select, textarea {
+  font-family: var(--font-family);
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
