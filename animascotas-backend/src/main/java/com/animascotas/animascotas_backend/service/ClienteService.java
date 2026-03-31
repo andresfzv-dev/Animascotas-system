@@ -5,6 +5,7 @@ import com.animascotas.animascotas_backend.domain.entity.Cliente;
 import com.animascotas.animascotas_backend.domain.entity.CreditoCliente;
 import com.animascotas.animascotas_backend.dto.request.AbonoRequest;
 import com.animascotas.animascotas_backend.dto.request.ClienteRequest;
+import com.animascotas.animascotas_backend.dto.response.AbonoClienteResponse;
 import com.animascotas.animascotas_backend.dto.response.ClienteResponse;
 import com.animascotas.animascotas_backend.dto.response.CreditoResponse;
 import com.animascotas.animascotas_backend.exception.BusinessException;
@@ -155,5 +156,29 @@ public class ClienteService {
                 credito.getDeudaTotal(),
                 credito.getSaldoPendiente()
         );
+    }
+
+    @Transactional
+    public void eliminar(String id) {
+        Cliente cliente = findClienteOrThrow(id);
+        clienteRepository.delete(cliente);
+    }
+
+    public List<AbonoClienteResponse> listarAbonosPorCliente(String clienteId) {
+        return abonoClienteRepository.findByClienteId(clienteId)
+                .stream()
+                .map(a -> new AbonoClienteResponse(
+                        a.getId(),
+                        a.getMonto(),
+                        a.getFecha()
+                ))
+                .toList();
+    }
+
+    public BigDecimal totalCreditosPendientes() {
+        return creditoRepository.findAll()
+                .stream()
+                .map(CreditoCliente::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

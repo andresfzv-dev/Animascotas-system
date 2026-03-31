@@ -1,0 +1,376 @@
+.filtros {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: flex-end;
+}
+
+.filtroField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtroLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.filtroInput {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  transition: var(--transition);
+}
+
+.filtroInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.statCard {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--color-primary);
+}
+
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.statValue {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.statSub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  align-items: start;
+}
+
+.card {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cardTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 16px;
+}
+
+.tabla {
+  display: flex;
+  flex-direction: column;
+}
+
+.tablaHeader {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+  padding: 10px 12px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.tablaRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  align-items: center;
+}
+
+.tablaRow:last-child { border-bottom: none; }
+.tablaRow:hover { background-color: var(--color-background); }
+
+.muted { color: var(--color-text-muted); font-size: 0.75rem; }
+
+.metodo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.efectivo { background-color: #E8F5E9; color: var(--color-primary); }
+.transferencia { background-color: #E3F2FD; color: #1565C0; }
+
+.total { font-weight: 600; color: var(--color-primary); }
+
+.empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.topList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.topItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topRank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.topInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topNombre {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.topBar {
+  height: 6px;
+  background-color: var(--color-background);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.topBarFill {
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.topCantidad {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  min-width: 50px;
+  text-align: right;
+}
+
+.vistaSelector {
+  display: flex;
+  gap: 4px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+.vistaBtnReporte {
+  padding: 8px 20px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vistaActiveReporte {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbarReporte {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.resumenStat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  padding: 12px 16px;
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.resumenStat strong {
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+}
+
+.tablaHeaderProveedores {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr 1fr 1fr 0.8fr;
+  padding: 12px 20px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tablaRowProveedores {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr 1fr 1fr 0.8fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  align-items: center;
+  transition: var(--transition);
+}
+
+.tablaRowProveedores:last-child { border-bottom: none; }
+.tablaRowProveedores:hover { background-color: var(--color-background); }
+.rowVencida { background-color: var(--color-danger-light); }
+
+.pagado { color: var(--color-primary); font-weight: 500; }
+.pendiente { color: var(--color-danger); font-weight: 600; }
+.vencida { color: var(--color-danger); font-weight: 600; }
+
+.estadoBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.estadoVencida { background-color: var(--color-danger-light); color: var(--color-danger); }
+.estadoPagada { background-color: var(--color-background); color: var(--color-primary); }
+.estadoPendiente { background-color: #FFF8E1; color: #F57F17; }
+
+.tablaHeaderInventario {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 0.7fr 0.5fr 1fr 1fr;
+  padding: 12px 20px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tablaRowInventario {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 0.7fr 0.5fr 1fr 1fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  align-items: center;
+  transition: var(--transition);
+}
+
+.tablaRowInventario:last-child { border-bottom: none; }
+.tablaRowInventario:hover { background-color: var(--color-background); }
+.rowSinStock { background-color: var(--color-danger-light); }
+.rowStockBajo { background-color: #FFFDE7; }
+
+.categoriaBadge {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  background-color: var(--color-background);
+  padding: 2px 8px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.stockNum { font-weight: 600; }
+.sinStockText { color: var(--color-danger); }
+.stockBajoText { color: #F57F17; }
+.valorStock { font-weight: 500; color: var(--color-primary); }
+.bold { font-weight: 500; }
+
+.statCreditoInfo {
+  border-left: 4px solid #F57F17;
+  background: linear-gradient(135deg, #fff 60%, #FFF8E1);
+  max-width: 300px;
+}
+
+.rowAbono {
+  background-color: #F1F8E9;
+}
+
+.abono {
+  background-color: #E8F5E9;
+  color: #1B5E20;
+  border: 1px solid #2E7D32;
+}

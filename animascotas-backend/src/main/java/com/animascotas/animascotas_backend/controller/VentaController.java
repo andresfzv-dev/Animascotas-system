@@ -35,10 +35,16 @@ public class VentaController {
 
     @GetMapping
     public ResponseEntity<List<VentaResponse>> listarPorFecha(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime fin) {
-        return ResponseEntity.ok(ventaService.listarPorFecha(inicio, fin));
+            @RequestParam LocalDateTime inicio,
+            @RequestParam LocalDateTime fin) {
+        return ResponseEntity.ok(ventaService.listarPorFechaConAbonos(inicio, fin));
     }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<VentaResponse>> listarPorCliente(
+            @PathVariable String clienteId) {
+        return ResponseEntity.ok(ventaService.listarPorCliente(clienteId));
+    }
+
+
 }

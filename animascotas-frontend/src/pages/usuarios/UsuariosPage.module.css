@@ -1,0 +1,67 @@
+.tabla {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 0.8fr;
+  padding: 12px 20px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 0.8fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  font-size: var(--font-size-sm);
+  transition: var(--transition);
+}
+
+.row:last-child { border-bottom: none; }
+.row:hover { background-color: var(--color-background); }
+.rowInactivo { opacity: 0.6; }
+
+.nombre { font-weight: 500; color: var(--color-text); }
+.muted { color: var(--color-text-muted); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badgeAdmin {
+  background-color: #E8EAF6;
+  color: #3949AB;
+}
+
+.badgeEmpleado {
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.iconActivo { color: var(--color-primary); }
+.iconInactivo { color: var(--color-danger); }

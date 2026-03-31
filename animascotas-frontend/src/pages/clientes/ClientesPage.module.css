@@ -1,0 +1,47 @@
+.tabla {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr;
+  padding: 12px 20px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  transition: var(--transition);
+}
+
+.row:last-child { border-bottom: none; }
+.row:hover { background-color: var(--color-background); }
+
+.nombre {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.telefono {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}

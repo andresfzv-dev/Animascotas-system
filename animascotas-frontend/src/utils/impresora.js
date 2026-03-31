@@ -158,3 +158,65 @@ export const imprimirResumenDia = async (ventas, fecha, cajero) => {
     throw new Error('No se pudo imprimir. Verifica que QZ Tray esté corriendo.');
   }
 };
+
+export const imprimirTicketCredito = async (cliente, credito, ventas) => {
+  try {
+    await conectar();
+    const config = qz.configs.create(IMPRESORA);
+
+    const formatP = (valor) =>
+      `$${Number(valor).toLocaleString('es-CO', { maximumFractionDigits: 0 })}`;
+
+    const linea = (t1, t2) => {
+      const espacios = 32 - t1.length - t2.length;
+      return t1 + ' '.repeat(Math.max(1, espacios)) + t2 + '\n';
+    };
+
+    const datos = [
+      '\x1B@',
+      '\x1Ba\x01',
+      '\x1BE\x01',
+      '\x1B!\x30',
+      'ANIMASCOTAS\n',
+      '\x1B!\x00',
+      '\x1BE\x00',
+      'La Tebaida, Quindio\n',
+      '\n',
+      '\x1Ba\x00',
+      '='.repeat(32) + '\n',
+      '\x1Ba\x01',
+      '\x1BE\x01',
+      'ESTADO DE CUENTA\n',
+      '\x1BE\x00',
+      '\x1Ba\x00',
+      '='.repeat(32) + '\n',
+      `Cliente: ${cliente}\n`,
+      `Fecha: ${new Date().toLocaleDateString('es-CO')}\n`,
+      '-'.repeat(32) + '\n',
+      linea('Deuda total:', formatP(credito.deudaTotal)),
+      linea('Saldo pendiente:', formatP(credito.saldoPendiente)),
+      '-'.repeat(32) + '\n',
+      '\x1BE\x01',
+      'COMPRAS\n',
+      '\x1BE\x00',
+      ...ventas.slice(0, 10).map((v) => {
+        const fecha = new Date(v.fecha).toLocaleDateString('es-CO');
+        const productos = v.items.map((i) => `${i.producto} x${i.cantidad}`).join(', ');
+        return `${fecha}\n${productos}\n${linea('Total:', formatP(v.total))}`;
+      }),
+      '='.repeat(32) + '\n',
+      '\x1Ba\x01',
+      '\x1BE\x01',
+      'Gracias por su compra!\n',
+      '\x1BE\x00',
+      '\n\n\n',
+      '\x1DVA\x03',
+    ];
+
+    await qz.print(config, [{ type: 'raw', format: 'plain', data: datos.join('') }]);
+    return true;
+  } catch (error) {
+    console.error('Error al imprimir:', error);
+    throw new Error('No se pudo imprimir. Verifica que QZ Tray esté corriendo.');
+  }
+};

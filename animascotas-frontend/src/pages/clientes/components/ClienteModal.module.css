@@ -1,0 +1,200 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.input {
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  transition: var(--transition);
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.inputError { border-color: var(--color-danger); }
+
+.error {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.creditoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.creditoInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.creditoStat {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.creditoPendiente {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+.creditoLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.creditoValue {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.creditoRed { color: var(--color-danger); }
+
+.sinCredito {
+  text-align: center;
+  padding: 24px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: 1px dashed var(--color-border);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.inlineForm {
+  display: flex;
+  gap: 10px;
+}
+
+.inlineForm .input { flex: 1; }
+
+.creditoPagado {
+  border-color: var(--color-primary);
+  background-color: var(--color-background);
+}
+
+.creditoGreen { color: var(--color-primary); }
+
+.ventasHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ventasList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ventaItem {
+  display: grid;
+  grid-template-columns: 100px 1fr 100px;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  align-items: center;
+}
+
+.ventaFecha {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.ventaProductos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ventaProducto {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.ventaTotal {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: right;
+}
+
+.abonoItem {
+  display: grid;
+  grid-template-columns: 100px 1fr 100px;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: #E8F5E9;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-primary);
+  align-items: center;
+}
+
+.abonoBadge {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.abonoTotal {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: right;
+}

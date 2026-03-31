@@ -37,24 +37,35 @@ public class UsuarioService {
             throw new BusinessException(
                     "Ya existe un usuario con el email: " + request.getEmail());
         }
+
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new BusinessException("La contraseña es obligatoria");
+        }
+
+        if (request.getPassword().length() < 8) {
+            throw new BusinessException("La contraseña debe tener mínimo 8 caracteres");
+        }
+
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
         usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         usuario.setRol(request.getRol());
+        usuario.setActivo(true);
+
+        if (request.getModulos() != null && !request.getModulos().isEmpty()) {
+            usuario.getModulos().addAll(request.getModulos());
+        }
 
         return toResponse(usuarioRepository.save(usuario));
     }
-
     @Transactional
     public UsuarioResponse actualizar(String id, UsuarioRequest request) {
         Usuario usuario = findByIdOrThrow(id);
 
-        if (!usuario.getEmail().equals(request.getEmail())
-                && usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException(
-                    "Ya existe un usuario con el email: " + request.getEmail());
-        }
+        System.out.println("=== ACTUALIZANDO USUARIO ===");
+        System.out.println("ID: " + id);
+        System.out.println("Módulos recibidos: " + request.getModulos());
 
         usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
@@ -64,14 +75,15 @@ public class UsuarioService {
             usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         }
 
-        return toResponse(usuarioRepository.save(usuario));
-    }
+        if (request.getModulos() != null) {
+            usuario.getModulos().clear();
+            usuario.getModulos().addAll(request.getModulos());
+            System.out.println("Módulos guardados: " + usuario.getModulos());
+        } else {
+            System.out.println("Módulos recibidos son NULL");
+        }
 
-    @Transactional
-    public void desactivar(String id) {
-        Usuario usuario = findByIdOrThrow(id);
-        usuario.setActivo(false);
-        usuarioRepository.save(usuario);
+        return toResponse(usuarioRepository.save(usuario));
     }
 
     private Usuario findByIdOrThrow(String id) {
@@ -85,7 +97,14 @@ public class UsuarioService {
                 usuario.getNombre(),
                 usuario.getEmail(),
                 usuario.getRol().name(),
-                usuario.getActivo()
+                usuario.getActivo(),
+                usuario.getModulos()
         );
+    }
+
+    @Transactional
+    public void eliminar(String id) {
+        Usuario usuario = findByIdOrThrow(id);
+        usuarioRepository.delete(usuario);
     }
 }

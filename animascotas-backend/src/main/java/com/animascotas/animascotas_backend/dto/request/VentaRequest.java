@@ -24,4 +24,10 @@ public class VentaRequest {
 
     @NotEmpty(message = "La venta debe tener al menos un producto")
     private List<VentaItemRequest> items;
+
+    private Boolean esCredito = false;
+
+    public boolean isEsCredito() {
+        return Boolean.TRUE.equals(esCredito);
+    }
 }

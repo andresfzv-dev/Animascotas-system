@@ -1,0 +1,101 @@
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vistaBtns {
+  display: flex;
+  gap: 4px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.vistaBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vistaActive {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.alertaLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+}
+
+.tabla {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 12px 20px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.headerFactura {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr;
+  padding: 12px 20px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  transition: var(--transition);
+  font-size: var(--font-size-sm);
+}
+
+.row:last-child { border-bottom: none; }
+.row:hover { background-color: var(--color-background); }
+
+.rowVencida { background-color: var(--color-danger-light); }
+
+.nombre { font-weight: 500; color: var(--color-text); }
+.muted { color: var(--color-text-muted); }
+
+.saldoPendiente {
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.vencida { color: var(--color-danger); font-weight: 600; }

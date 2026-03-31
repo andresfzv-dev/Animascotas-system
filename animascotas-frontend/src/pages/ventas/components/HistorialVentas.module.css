@@ -135,3 +135,14 @@
   background-color: var(--color-primary);
   color: var(--color-white);
 }
+
+.credito {
+  background-color: #FFF3E0;
+  color: #E65100;
+}
+
+.abono {
+  background-color: #E8F5E9;
+  color: #1B5E20;
+  border: 1px solid #2E7D32;
+}

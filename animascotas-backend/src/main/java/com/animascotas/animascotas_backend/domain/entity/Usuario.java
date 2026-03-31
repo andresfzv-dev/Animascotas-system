@@ -2,17 +2,19 @@ package com.animascotas.animascotas_backend.domain.entity;
 
 import com.animascotas.animascotas_backend.domain.enums.Rol;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Usuario {
 
     @Id
@@ -33,14 +35,27 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private Rol rol;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Boolean activo;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime creadoEn;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "usuario_modulos", joinColumns = @JoinColumn(name = "usuario_id"))
+    @Column(name = "modulo")
+    @Builder.Default
+    private List<String> modulos = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         this.creadoEn = LocalDateTime.now();
+    }
+
+    public List<String> getModulos() {
+        if (modulos == null) {
+            modulos = new ArrayList<>();
+        }
+        return modulos;
     }
 }

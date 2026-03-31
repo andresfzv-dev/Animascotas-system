@@ -4,16 +4,21 @@ import com.animascotas.animascotas_backend.domain.entity.AbonoProveedor;
 import com.animascotas.animascotas_backend.domain.entity.FacturaProveedor;
 import com.animascotas.animascotas_backend.domain.entity.Proveedor;
 import com.animascotas.animascotas_backend.dto.request.AbonoRequest;
+import com.animascotas.animascotas_backend.dto.request.FacturaProveedorRequest;
 import com.animascotas.animascotas_backend.dto.request.ProveedorRequest;
 import com.animascotas.animascotas_backend.dto.response.FacturaProveedorResponse;
+import com.animascotas.animascotas_backend.dto.response.ProveedorResponse;
 import com.animascotas.animascotas_backend.exception.BusinessException;
 import com.animascotas.animascotas_backend.exception.ResourceNotFoundException;
 import com.animascotas.animascotas_backend.repository.AbonoProveedorRepository;
 import com.animascotas.animascotas_backend.repository.FacturaProveedorRepository;
 import com.animascotas.animascotas_backend.repository.ProveedorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,7 +37,6 @@ public class ProveedorService {
             throw new BusinessException(
                     "Ya existe un proveedor con el nombre: " + request.getNombre());
         }
-
         Proveedor proveedor = new Proveedor();
         proveedor.setNombre(request.getNombre());
         proveedor.setTelefono(request.getTelefono());
@@ -90,4 +94,46 @@ public class ProveedorService {
                 factura.getFechaVencimiento().isBefore(LocalDate.now())
         );
     }
+
+    public List<ProveedorResponse> listarActivos() {
+        return proveedorRepository.findByActivoTrue()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public FacturaProveedorResponse registrarFactura(String proveedorId,
+                                                     FacturaProveedorRequest request) {
+        Proveedor proveedor = proveedorRepository.findById(proveedorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proveedor", proveedorId));
+
+        FacturaProveedor factura = new FacturaProveedor();
+        factura.setProveedor(proveedor);
+        factura.setNumeroFactura(request.getNumeroFactura());
+        factura.setTotal(request.getTotal());
+        factura.setFecha(request.getFecha());
+        factura.setFechaVencimiento(request.getFechaVencimiento());
+
+        return toFacturaResponse(facturaRepository.save(factura));
+    }
+
+    private ProveedorResponse toResponse(Proveedor proveedor) {
+        return new ProveedorResponse(
+                proveedor.getId(),
+                proveedor.getNombre(),
+                proveedor.getTelefono(),
+                proveedor.getEmail(),
+                proveedor.getActivo()
+        );
+    }
+
+    public List<FacturaProveedorResponse> listarTodasFacturas() {
+        return facturaRepository.findAll()
+                .stream()
+                .map(this::toFacturaResponse)
+                .toList();
+    }
+
+
 }

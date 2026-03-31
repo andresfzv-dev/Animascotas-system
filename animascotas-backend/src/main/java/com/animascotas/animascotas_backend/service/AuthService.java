@@ -36,6 +36,11 @@ public class AuthService {
                 usuario.getRol().name()
         );
 
-        return new AuthResponse(token, usuario.getNombre(), usuario.getRol().name());
+        return new AuthResponse(
+                token,
+                usuario.getNombre(),
+                usuario.getRol().name(),
+                usuario.getModulos()
+        );
     }
 }

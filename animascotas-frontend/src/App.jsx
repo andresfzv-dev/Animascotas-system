@@ -8,6 +8,9 @@ import VentasPage from './pages/ventas/VentasPage';
 import ClientesPage from './pages/clientes/ClientesPage';
 import UsuariosPage from './pages/usuarios/UsuariosPage';
 import InventarioPage from './pages/inventario/InventarioPage';
+import ProveedoresPage from './pages/proveedores/ProveedoresPage';
+import MascotasPage from './pages/mascotas/MascotasPage';
+import ReportesPage from './pages/reportes/ReportesPage';
 
 const App = () => {
   return (
@@ -27,6 +30,9 @@ const App = () => {
           <Route path="ventas" element={<VentasPage />} />
           <Route path="clientes" element={<ClientesPage />} />
           <Route path="inventario" element={<InventarioPage />} />
+          <Route path="proveedores" element={<ProveedoresPage />} />
+          <Route path="mascotas" element={<MascotasPage />} />
+          <Route path="reportes" element={<ReportesPage />} />
           <Route
             path="usuarios"
             element={

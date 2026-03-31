@@ -82,28 +82,18 @@ const InventarioPage = () => {
         subtitle={`${todasLasPresentaciones.length} presentaciones registradas`}
       />
 
-      <div className={styles.statsRow}>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Total presentaciones</span>
-          <span className={styles.statValue}>{todasLasPresentaciones.length}</span>
-        </div>
-        <div className={`${styles.statCard} ${styles.statWarning}`}>
-          <span className={styles.statLabel}>Stock bajo</span>
-          <span className={styles.statValue}>{stockBajo.length}</span>
-        </div>
-        <div className={`${styles.statCard} ${styles.statDanger}`}>
-          <span className={styles.statLabel}>Sin stock</span>
-          <span className={styles.statValue}>
-            {todasLasPresentaciones.filter((p) => p.stock === 0).length}
-          </span>
-        </div>
-        <div className={`${styles.statCard} ${styles.statPrimary}`}>
-          <span className={styles.statLabel}>Valor total inventario</span>
-          <span className={styles.statValue}>
-            ${valorTotalInventario.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
-          </span>
-        </div>
-      </div>
+<div className={styles.statsRow}>
+  <div className={styles.statCard}>
+    <span className={styles.statLabel}>Total presentaciones</span>
+    <span className={styles.statValue}>{todasLasPresentaciones.length}</span>
+  </div>
+  <div className={`${styles.statCard} ${styles.statPrimary}`}>
+    <span className={styles.statLabel}>Valor total inventario</span>
+    <span className={styles.statValue}>
+      ${valorTotalInventario.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
+    </span>
+  </div>
+</div>
 
       <div className={styles.toolbar}>
         <SearchBar

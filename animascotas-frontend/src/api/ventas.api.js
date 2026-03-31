@@ -16,3 +16,8 @@ export const getVentasPorFecha = async (inicio, fin) => {
   });
   return data;
 };
+
+export const getVentasPorCliente = async (clienteId) => {
+  const { data } = await axiosInstance.get(`/ventas/cliente/${clienteId}`);
+  return data;
+};

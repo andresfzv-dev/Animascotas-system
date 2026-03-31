@@ -9,10 +9,20 @@ const axiosInstance = axios.create({
   },
 });
 
-// Interceptor de request — agrega el token automáticamente
+const getToken = () => {
+  try {
+    const stored = localStorage.getItem('auth-storage');
+    if (!stored) return null;
+    const parsed = JSON.parse(stored);
+    return parsed?.state?.token ?? null;
+  } catch {
+    return null;
+  }
+};
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,12 +31,11 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor de response — maneja errores globalmente
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('auth-storage');
       window.location.href = '/login';
     }
     return Promise.reject(error);

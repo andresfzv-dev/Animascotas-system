@@ -27,19 +27,23 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    try {
-      const response = await loginApi(data);
-      login(response.token, response.nombre, response.rol);
-      toast.success(`Bienvenido, ${response.nombre}`);
-      navigate('/');
-    } catch {
-      toast.error('Credenciales incorrectas');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const onSubmit = async (data) => {
+  setIsLoading(true);
+  try {
+    const response = await loginApi(data);
+    login(response.token, {
+      nombre: response.nombre,
+      rol: response.rol,
+      modulos: response.modulos,
+    });
+    toast.success(`Bienvenido, ${response.nombre}`);
+    navigate('/');
+  } catch {
+    toast.error('Credenciales incorrectas');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className={styles.container}>

@@ -17,4 +17,6 @@ public interface FacturaProveedorRepository extends JpaRepository<FacturaProveed
 
     @Query("SELECT f FROM FacturaProveedor f WHERE f.fechaVencimiento <= :fecha AND f.saldoPendiente > 0")
     List<FacturaProveedor> findVencidasOPorVencer(LocalDate fecha);
+
+    List<FacturaProveedor> findByProveedorIdIsNotNull();
 }

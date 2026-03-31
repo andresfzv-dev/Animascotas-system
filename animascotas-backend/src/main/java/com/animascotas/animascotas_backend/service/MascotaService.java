@@ -95,6 +95,7 @@ public class MascotaService {
                 vacuna.getFechaAplicacion(),
                 vacuna.getFechaProximaDosis(),
                 vacuna.getMascota().getNombre(),
+                vacuna.getMascota().getCliente().getNombre(),
                 proximaAVencer
         );
     }

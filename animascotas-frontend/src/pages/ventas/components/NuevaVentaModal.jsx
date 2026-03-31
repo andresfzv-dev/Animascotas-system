@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Scan, Trash2, Plus, Minus } from 'lucide-react';
 import Modal from '../../../components/common/Modal';
 import Button from '../../../components/common/Button';
 import { getProductos, buscarPorCodigoBarras } from '../../../api/productos.api';
-import { getClientes } from '../../../api/clientes.api';
+import { getClientes, registrarDeuda } from '../../../api/clientes.api';
 import { createVenta } from '../../../api/ventas.api';
 import styles from './NuevaVentaModal.module.css';
 
@@ -17,6 +16,7 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
   const [metodoPago, setMetodoPago] = useState('EFECTIVO');
   const [clienteId, setClienteId] = useState('');
   const [montoRecibido, setMontoRecibido] = useState('');
+  const [esCredito, setEsCredito] = useState(false);
   const codigoRef = useRef(null);
 
   const { data: productos = [] } = useQuery({
@@ -33,10 +33,16 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
   const cambio = montoRecibido ? Number(montoRecibido) - total : 0;
 
   useEffect(() => {
-  if (metodoPago === 'TRANSFERENCIA') {
-    setMontoRecibido(total.toString());
-  }
+    if (metodoPago === 'TRANSFERENCIA') {
+      setMontoRecibido(total.toString());
+    }
   }, [metodoPago, total]);
+
+  useEffect(() => {
+    if (esCredito) {
+      setMontoRecibido('0');
+    }
+  }, [esCredito]);
 
   const todasLasPresentaciones = productos.flatMap((p) =>
     p.presentaciones.map((pres) => ({
@@ -45,12 +51,16 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
     }))
   );
 
-  const presentacionesFiltradas = busqueda.length > 1
-    ? todasLasPresentaciones.filter((p) =>
-        p.productoNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        p.variante.toLowerCase().includes(busqueda.toLowerCase())
-      ).slice(0, 6)
-    : [];
+  const presentacionesFiltradas =
+    busqueda.length > 1
+      ? todasLasPresentaciones
+          .filter(
+            (p) =>
+              p.productoNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+              p.variante.toLowerCase().includes(busqueda.toLowerCase())
+          )
+          .slice(0, 6)
+      : [];
 
   const agregarItem = (presentacion) => {
     setBusqueda('');
@@ -59,14 +69,17 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
       actualizarCantidad(presentacion.id, existente.cantidad + 1);
       return;
     }
-    setItems((prev) => [...prev, {
-      presentacionId: presentacion.id,
-      nombre: `${presentacion.productoNombre} - ${presentacion.variante}`,
-      precio: presentacion.precioVenta,
-      cantidad: 1,
-      subtotal: presentacion.precioVenta,
-      stockDisponible: presentacion.stock,
-    }]);
+    setItems((prev) => [
+      ...prev,
+      {
+        presentacionId: presentacion.id,
+        nombre: `${presentacion.productoNombre} - ${presentacion.variante}`,
+        precio: presentacion.precioVenta,
+        cantidad: 1,
+        subtotal: presentacion.precioVenta,
+        stockDisponible: presentacion.stock,
+      },
+    ]);
   };
 
   const actualizarCantidad = (presentacionId, nuevaCantidad) => {
@@ -104,10 +117,26 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
 
   const mutation = useMutation({
     mutationFn: createVenta,
-    onSuccess: (venta) => {
+    onSuccess: async (venta) => {
       queryClient.invalidateQueries({ queryKey: ['productos'] });
       queryClient.invalidateQueries({ queryKey: ['ventas'] });
-      toast.success(`Venta registrada — Cambio: $${venta.cambio.toLocaleString('es-CO')}`);
+
+      if (esCredito && clienteId) {
+        try {
+          await registrarDeuda(clienteId, venta.total);
+          queryClient.invalidateQueries({ queryKey: ['credito', clienteId] });
+          queryClient.invalidateQueries({ queryKey: ['ventas-cliente', clienteId] });
+          toast.success(
+            `Venta registrada como crédito — $${venta.total.toLocaleString('es-CO')}`
+          );
+        } catch {
+          toast.error('Venta registrada pero no se pudo registrar el crédito');
+        }
+      } else {
+        toast.success(
+          `Venta registrada — Cambio: $${venta.cambio.toLocaleString('es-CO')}`
+        );
+      }
       handleClose();
     },
     onError: (error) => {
@@ -120,19 +149,24 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
       toast.error('Agrega al menos un producto');
       return;
     }
-    if (metodoPago === 'EFECTIVO' && (!montoRecibido || Number(montoRecibido) < total)) {
-      toast.error('El monto recibido es insuficiente');
-      return; 
+    if (esCredito && !clienteId) {
+      toast.error('Debes seleccionar un cliente para registrar crédito');
+      return;
     }
-    mutation.mutate({
-      clienteId: clienteId || null,
-      metodoPago,
-      montoRecibido: Number(montoRecibido),
-      items: items.map((i) => ({
-        presentacionId: i.presentacionId,
-        cantidad: i.cantidad,
-      })),
-    });
+    if (!esCredito && metodoPago === 'EFECTIVO' && (!montoRecibido || Number(montoRecibido) < total)) {
+      toast.error('El monto recibido es insuficiente');
+      return;
+    }
+mutation.mutate({
+  clienteId: clienteId || null,
+  metodoPago: esCredito ? 'CREDITO' : metodoPago,
+  montoRecibido: esCredito ? 0 : Number(montoRecibido),
+  esCredito,
+  items: items.map((i) => ({
+    presentacionId: i.presentacionId,
+    cantidad: i.cantidad,
+  })),
+});
   };
 
   const handleClose = () => {
@@ -141,6 +175,7 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
     setMetodoPago('EFECTIVO');
     setClienteId('');
     setMontoRecibido('');
+    setEsCredito(false);
     onClose();
   };
 
@@ -171,16 +206,18 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
                     disabled={p.stock === 0}
                   >
                     <div className={styles.sugerenciaInfo}>
-                      <span className={styles.sugerenciaNombre}>
-                        {p.productoNombre}
-                      </span>
+                      <span className={styles.sugerenciaNombre}>{p.productoNombre}</span>
                       <span className={styles.sugerenciaVariante}>{p.variante}</span>
                     </div>
                     <div className={styles.sugerenciaDerecha}>
                       <span className={styles.sugerenciaPrecio}>
                         ${p.precioVenta.toLocaleString('es-CO')}
                       </span>
-                      <span className={`${styles.sugerenciaStock} ${p.stock === 0 ? styles.sinStock : ''}`}>
+                      <span
+                        className={`${styles.sugerenciaStock} ${
+                          p.stock === 0 ? styles.sinStock : ''
+                        }`}
+                      >
                         Stock: {p.stock}
                       </span>
                     </div>
@@ -208,14 +245,18 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
                   <div className={styles.itemControles}>
                     <button
                       className={styles.cantBtn}
-                      onClick={() => actualizarCantidad(item.presentacionId, item.cantidad - 1)}
+                      onClick={() =>
+                        actualizarCantidad(item.presentacionId, item.cantidad - 1)
+                      }
                     >
                       <Minus size={14} />
                     </button>
                     <span className={styles.cantidad}>{item.cantidad}</span>
                     <button
                       className={styles.cantBtn}
-                      onClick={() => actualizarCantidad(item.presentacionId, item.cantidad + 1)}
+                      onClick={() =>
+                        actualizarCantidad(item.presentacionId, item.cantidad + 1)
+                      }
                       disabled={item.cantidad >= item.stockDisponible}
                     >
                       <Plus size={14} />
@@ -245,30 +286,52 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
               <select
                 className={styles.resumenSelect}
                 value={clienteId}
-                onChange={(e) => setClienteId(e.target.value)}
+                onChange={(e) => {
+                  setClienteId(e.target.value);
+                  if (!e.target.value) setEsCredito(false);
+                }}
               >
                 <option value="">Mostrador</option>
                 {clientes.map((c) => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.nombre}
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div className={styles.resumenField}>
-              <label className={styles.resumenLabel}>Método de pago</label>
-              <div className={styles.metodoPago}>
-                {['EFECTIVO', 'TRANSFERENCIA'].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className={`${styles.metodoBtn} ${metodoPago === m ? styles.metodoActive : ''}`}
-                    onClick={() => setMetodoPago(m)}
-                  >
-                    {m === 'EFECTIVO' ? '💵 Efectivo' : '📲 Transferencia'}
-                  </button>
-                ))}
+            {clienteId && (
+              <div className={styles.resumenField}>
+                <label className={styles.creditoToggle}>
+                  <input
+                    type="checkbox"
+                    checked={esCredito}
+                    onChange={(e) => setEsCredito(e.target.checked)}
+                  />
+                  <span>Registrar como crédito</span>
+                </label>
               </div>
-            </div>
+            )}
+
+            {!esCredito && (
+              <div className={styles.resumenField}>
+                <label className={styles.resumenLabel}>Método de pago</label>
+                <div className={styles.metodoPago}>
+                  {['EFECTIVO', 'TRANSFERENCIA'].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className={`${styles.metodoBtn} ${
+                        metodoPago === m ? styles.metodoActive : ''
+                      }`}
+                      onClick={() => setMetodoPago(m)}
+                    >
+                      {m === 'EFECTIVO' ? '💵 Efectivo' : '📲 Transferencia'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className={styles.totalRow}>
               <span>Total</span>
@@ -277,7 +340,7 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
               </strong>
             </div>
 
-            {metodoPago === 'EFECTIVO' && (
+            {!esCredito && metodoPago === 'EFECTIVO' && (
               <>
                 <div className={styles.resumenField}>
                   <label className={styles.resumenLabel}>Monto recibido</label>
@@ -289,9 +352,12 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
                     onChange={(e) => setMontoRecibido(e.target.value)}
                   />
                 </div>
-
                 {montoRecibido && (
-                  <div className={`${styles.cambioRow} ${cambio < 0 ? styles.cambioNegativo : ''}`}>
+                  <div
+                    className={`${styles.cambioRow} ${
+                      cambio < 0 ? styles.cambioNegativo : ''
+                    }`}
+                  >
                     <span>Cambio</span>
                     <strong>${cambio.toLocaleString('es-CO')}</strong>
                   </div>
@@ -299,6 +365,24 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
               </>
             )}
 
+            {!esCredito && metodoPago === 'TRANSFERENCIA' && (
+              <div className={styles.resumenField}>
+                <label className={styles.resumenLabel}>Monto recibido</label>
+                <input
+                  type="number"
+                  className={styles.resumenInput}
+                  value={total}
+                  readOnly
+                />
+              </div>
+            )}
+
+            {esCredito && (
+              <div className={styles.creditoInfo}>
+                <span>Se registrará una deuda de</span>
+                <strong>${total.toLocaleString('es-CO')}</strong>
+              </div>
+            )}
 
             <Button
               onClick={handleRegistrar}
@@ -307,7 +391,7 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
               size="lg"
               style={{ width: '100%', marginTop: '8px' }}
             >
-              Registrar venta
+              {esCredito ? 'Registrar como crédito' : 'Registrar venta'}
             </Button>
           </div>
         </div>

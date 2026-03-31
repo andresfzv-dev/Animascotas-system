@@ -2,6 +2,7 @@ package com.animascotas.animascotas_backend.controller;
 
 import com.animascotas.animascotas_backend.dto.request.AbonoRequest;
 import com.animascotas.animascotas_backend.dto.request.ClienteRequest;
+import com.animascotas.animascotas_backend.dto.response.AbonoClienteResponse;
 import com.animascotas.animascotas_backend.dto.response.ClienteResponse;
 import com.animascotas.animascotas_backend.dto.response.CreditoResponse;
 import com.animascotas.animascotas_backend.service.ClienteService;
@@ -51,8 +52,8 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> desactivar(@PathVariable String id) {
-        clienteService.desactivar(id);
+    public ResponseEntity<Void> eliminar(@PathVariable String id) {
+        clienteService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -73,5 +74,15 @@ public class ClienteController {
             @PathVariable String id,
             @Valid @RequestBody AbonoRequest request) {
         return ResponseEntity.ok(clienteService.registrarAbono(id, request));
+    }
+
+    @GetMapping("/{id}/abonos")
+    public ResponseEntity<List<AbonoClienteResponse>> listarAbonos(@PathVariable String id) {
+        return ResponseEntity.ok(clienteService.listarAbonosPorCliente(id));
+    }
+
+    @GetMapping("/creditos/total-pendiente")
+    public ResponseEntity<BigDecimal> totalCreditosPendientes() {
+        return ResponseEntity.ok(clienteService.totalCreditosPendientes());
     }
 }

@@ -24,4 +24,6 @@ public interface VentaRepository extends JpaRepository<Venta, String> {
             ORDER BY totalVendido DESC
             """)
     List<Object[]> findProductosMasVendidos(LocalDateTime inicio, LocalDateTime fin);
+
+    List<Venta> findByClienteId(String clienteId);
 }

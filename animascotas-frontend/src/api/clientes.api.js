@@ -27,3 +27,26 @@ export const registrarAbono = async (clienteId, abono) => {
   );
   return data;
 };
+
+export const registrarDeuda = async (clienteId, monto) => {
+  const { data } = await axiosInstance.post(
+    `/clientes/${clienteId}/credito/deuda`,
+    null,
+    { params: { monto } }
+  );
+  return data;
+};
+
+export const eliminarCliente = async (id) => {
+  await axiosInstance.delete(`/clientes/${id}`);
+};
+
+export const getAbonosPorCliente = async (clienteId) => {
+  const { data } = await axiosInstance.get(`/clientes/${clienteId}/abonos`);
+  return data;
+};
+
+export const getTotalCreditosPendientes = async () => {
+  const { data } = await axiosInstance.get('/clientes/creditos/total-pendiente');
+  return data;
+};
