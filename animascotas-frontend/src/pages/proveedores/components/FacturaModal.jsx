@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -5,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import Modal from '../../../components/common/Modal';
 import Button from '../../../components/common/Button';
-import { registrarFactura } from '../../../api/proveedores.api';
+import { registrarFactura, actualizarFactura } from '../../../api/proveedores.api';
 import styles from './ProveedorModal.module.css';
 
 const facturaSchema = z.object({
@@ -15,28 +16,53 @@ const facturaSchema = z.object({
   fechaVencimiento: z.string().min(1, 'La fecha de vencimiento es obligatoria'),
 });
 
-const FacturaModal = ({ isOpen, onClose, proveedor }) => {
+const FacturaModal = ({ isOpen, onClose, proveedor, factura }) => {
   const queryClient = useQueryClient();
+  const isEditing = !!factura;
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(facturaSchema),
   });
 
+  useEffect(() => {
+    if (factura) {
+      reset({
+        numeroFactura: factura.numeroFactura,
+        total: factura.total,
+        fecha: factura.fecha,
+        fechaVencimiento: factura.fechaVencimiento,
+      });
+    } else {
+      reset({ numeroFactura: '', total: '', fecha: '', fechaVencimiento: '' });
+    }
+  }, [factura, reset]);
+
   const mutation = useMutation({
-    mutationFn: (data) => registrarFactura(proveedor.id, data),
+    mutationFn: (data) =>
+      isEditing
+        ? actualizarFactura(factura.id, data)
+        : registrarFactura(proveedor.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['facturas-pendientes'] });
-      toast.success('Factura registrada');
+      queryClient.invalidateQueries({ queryKey: ['alertas-vencimiento'] });
+      queryClient.invalidateQueries({ queryKey: ['todas-facturas'] });
+      toast.success(isEditing ? 'Factura actualizada' : 'Factura registrada');
       reset();
       onClose();
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Error al registrar factura'),
+    onError: (error) =>
+      toast.error(error.response?.data?.message || 'Error al guardar factura'),
   });
 
-  if (!proveedor) return null;
+  if (!proveedor && !factura) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Nueva factura — ${proveedor.nombre}`} size="sm">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? `Editar factura — ${factura.proveedorNombre}` : `Nueva factura — ${proveedor?.nombre}`}
+      size="sm"
+    >
       <form onSubmit={handleSubmit(mutation.mutate)} className={styles.form}>
         <div className={styles.field}>
           <label className={styles.label}>Número de factura</label>
@@ -45,7 +71,9 @@ const FacturaModal = ({ isOpen, onClose, proveedor }) => {
             placeholder="Ej: FAC-001"
             {...register('numeroFactura')}
           />
-          {errors.numeroFactura && <span className={styles.error}>{errors.numeroFactura.message}</span>}
+          {errors.numeroFactura && (
+            <span className={styles.error}>{errors.numeroFactura.message}</span>
+          )}
         </div>
 
         <div className={styles.field}>
@@ -68,13 +96,19 @@ const FacturaModal = ({ isOpen, onClose, proveedor }) => {
           <div className={styles.field}>
             <label className={styles.label}>Vencimiento</label>
             <input type="date" className={styles.input} {...register('fechaVencimiento')} />
-            {errors.fechaVencimiento && <span className={styles.error}>{errors.fechaVencimiento.message}</span>}
+            {errors.fechaVencimiento && (
+              <span className={styles.error}>{errors.fechaVencimiento.message}</span>
+            )}
           </div>
         </div>
 
         <div className={styles.actions}>
-          <Button variant="ghost" onClick={onClose} type="button">Cancelar</Button>
-          <Button type="submit" isLoading={mutation.isPending}>Registrar factura</Button>
+          <Button variant="ghost" onClick={onClose} type="button">
+            Cancelar
+          </Button>
+          <Button type="submit" isLoading={mutation.isPending}>
+            {isEditing ? 'Guardar cambios' : 'Registrar factura'}
+          </Button>
         </div>
       </form>
     </Modal>

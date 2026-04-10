@@ -89,7 +89,7 @@ export const imprimirTicketVenta = async (venta, cajero) => {
   }
 };
 
-export const imprimirResumenDia = async (ventas, fecha, cajero) => {
+export const imprimirResumenDia = async (ventas, fecha, cajero, ganancia = 0) => {
   try {
     await conectar();
 
@@ -98,12 +98,17 @@ export const imprimirResumenDia = async (ventas, fecha, cajero) => {
       encoding: 'ISO-8859-1',
     });
 
-    const totalDia = ventas.reduce((acc, v) => acc + v.total, 0);
+    const totalDia = ventas
+      .filter((v) => v.metodoPago !== 'CREDITO')
+      .reduce((acc, v) => acc + v.total, 0);
     const totalEfectivo = ventas
       .filter((v) => v.metodoPago === 'EFECTIVO')
       .reduce((acc, v) => acc + v.total, 0);
     const totalTransferencia = ventas
       .filter((v) => v.metodoPago === 'TRANSFERENCIA')
+      .reduce((acc, v) => acc + v.total, 0);
+    const totalAbonos = ventas
+      .filter((v) => v.metodoPago === 'ABONO')
       .reduce((acc, v) => acc + v.total, 0);
 
     const lineas = [
@@ -137,13 +142,19 @@ export const imprimirResumenDia = async (ventas, fecha, cajero) => {
       '-'.repeat(32) + '\n',
       linea('Efectivo:', formatPesos(totalEfectivo)),
       linea('Transferencia:', formatPesos(totalTransferencia)),
+      linea('Abonos:', formatPesos(totalAbonos)),
       '='.repeat(32) + '\n',
       '\x1BE\x01',
       '\x1B!\x30',
       linea('TOTAL DIA:', formatPesos(totalDia)),
       '\x1B!\x00',
       '\x1BE\x00',
-      linea('Ventas:', ventas.length.toString()),
+      '-'.repeat(32) + '\n',
+      '\x1BE\x01',
+      linea('GANANCIA:', formatPesos(ganancia)),
+      '\x1BE\x00',
+      '='.repeat(32) + '\n',
+      linea('Ventas:', ventas.filter((v) => v.metodoPago !== 'ABONO').length.toString()),
       '='.repeat(32) + '\n',
       '\n',
       '\n',

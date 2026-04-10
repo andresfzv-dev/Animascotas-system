@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { FileDown, Receipt, Printer } from 'lucide-react';
-import { getVentasPorFecha } from '../../../api/ventas.api';
+import { getVentasPorFecha, getGanancia } from '../../../api/ventas.api';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import EmptyState from '../../../components/common/EmptyState';
 import Button from '../../../components/common/Button';
@@ -36,6 +36,12 @@ const HistorialVentas = () => {
     staleTime: 0,
   });
 
+  const { data: gananciaData = { ganancia: 0 } } = useQuery({
+    queryKey: ['ganancia-historial', fecha],
+    queryFn: () => getGanancia(inicio, fin),
+    staleTime: 0,
+  });
+
   const ventasFiltradas = ventas.filter((v) => {
     const matchMetodo = filtroMetodo ? v.metodoPago === filtroMetodo : true;
     const matchProducto = filtroProducto
@@ -59,14 +65,19 @@ const HistorialVentas = () => {
     }
   };
 
-  const handleImprimirResumen = async () => {
-    try {
-      await imprimirResumenDia(ventasFiltradas, fecha, usuario?.nombre);
-      toast.success('Resumen enviado a la impresora');
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+const handleImprimirResumen = async () => {
+  try {
+    await imprimirResumenDia(
+      ventasFiltradas,
+      fecha,
+      usuario?.nombre,
+      Number(gananciaData.ganancia)
+    );
+    toast.success('Resumen enviado a la impresora');
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -97,12 +108,22 @@ const HistorialVentas = () => {
           <option value="CREDITO">Crédito</option>
           <option value="ABONO">Abono</option>
         </select>
+
         {ventasFiltradas.length > 0 && (
-          <div className={styles.totalDia}>
-            <span>Total:</span>
-            <strong>${totalDia.toLocaleString('es-CO')}</strong>
-          </div>
+          <>
+            <div className={styles.totalDia}>
+              <span>Total:</span>
+              <strong>${totalDia.toLocaleString('es-CO', { maximumFractionDigits: 0 })}</strong>
+            </div>
+            <div className={`${styles.totalDia} ${styles.gananciaDia}`}>
+              <span>Ganancia:</span>
+              <strong>
+                ${Number(gananciaData.ganancia).toLocaleString('es-CO', { maximumFractionDigits: 0 })}
+              </strong>
+            </div>
+          </>
         )}
+
         {ventas.length > 0 && (
           <Button
             variant="secondary"
@@ -157,13 +178,13 @@ const HistorialVentas = () => {
                 {v.metodoPago}
               </span>
               <span className={styles.total}>
-                ${v.total.toLocaleString('es-CO')}
+                ${v.total.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
               </span>
               <span className={styles.recibido}>
-                ${v.montoRecibido.toLocaleString('es-CO')}
+                ${v.montoRecibido.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
               </span>
               <span className={styles.cambio}>
-                ${v.cambio.toLocaleString('es-CO')}
+                ${v.cambio.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
               </span>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 {v.metodoPago !== 'ABONO' && (

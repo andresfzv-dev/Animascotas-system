@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import Modal from '../../../components/common/Modal';
 import Button from '../../../components/common/Button';
 import { createProducto, updateProducto, deleteProducto } from '../../../api/productos.api';
+import { createCategoria } from '../../../api/categorias.api';
 import styles from './FormModal.module.css';
 
 const productoSchema = z.object({
@@ -19,8 +20,10 @@ const productoSchema = z.object({
 const ProductoFormModal = ({ isOpen, onClose, producto, categorias }) => {
   const queryClient = useQueryClient();
   const isEditing = !!producto;
+  const [nuevaCategoria, setNuevaCategoria] = useState('');
+  const [mostrarNuevaCategoria, setMostrarNuevaCategoria] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(productoSchema),
   });
 
@@ -35,6 +38,8 @@ const ProductoFormModal = ({ isOpen, onClose, producto, categorias }) => {
     } else {
       reset({ nombre: '', descripcion: '', categoriaId: '' });
     }
+    setMostrarNuevaCategoria(false);
+    setNuevaCategoria('');
   }, [producto, categorias, reset]);
 
   const saveMutation = useMutation({
@@ -57,6 +62,23 @@ const ProductoFormModal = ({ isOpen, onClose, producto, categorias }) => {
     },
     onError: () => toast.error('No se pudo eliminar el producto'),
   });
+
+  const handleCrearCategoria = async () => {
+    if (!nuevaCategoria.trim()) {
+      toast.error('Escribe el nombre de la categoría');
+      return;
+    }
+    try {
+      const cat = await createCategoria(nuevaCategoria.trim());
+      await queryClient.invalidateQueries({ queryKey: ['categorias'] });
+      setValue('categoriaId', cat.id);
+      toast.success(`Categoría "${cat.nombre}" creada`);
+      setMostrarNuevaCategoria(false);
+      setNuevaCategoria('');
+    } catch {
+      toast.error('Error al crear la categoría');
+    }
+  };
 
   const handleDelete = () => {
     if (window.confirm(`¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`)) {
@@ -84,7 +106,45 @@ const ProductoFormModal = ({ isOpen, onClose, producto, categorias }) => {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Categoría</label>
+          <div className={styles.categoriaHeader}>
+            <label className={styles.label}>Categoría</label>
+            <button
+              type="button"
+              className={styles.nuevaCategoriaBtn}
+              onClick={() => setMostrarNuevaCategoria(!mostrarNuevaCategoria)}
+            >
+              <Plus size={14} />
+              Nueva categoría
+            </button>
+          </div>
+
+          {mostrarNuevaCategoria && (
+            <div className={styles.nuevaCategoriaRow}>
+              <input
+                className={styles.input}
+                placeholder="Nombre de la nueva categoría"
+                value={nuevaCategoria}
+                onChange={(e) => setNuevaCategoria(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCrearCategoria())}
+                autoFocus
+              />
+              <Button type="button" size="sm" onClick={handleCrearCategoria}>
+                Crear
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setMostrarNuevaCategoria(false);
+                  setNuevaCategoria('');
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          )}
+
           <select
             className={`${styles.input} ${errors.categoriaId ? styles.inputError : ''}`}
             {...register('categoriaId')}

@@ -131,3 +131,38 @@
   color: var(--color-text-muted);
   margin-top: 2px;
 }
+
+.categoriaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.nuevaCategoriaBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0;
+}
+
+.nuevaCategoriaBtn:hover {
+  text-decoration: underline;
+}
+
+.nuevaCategoriaRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.nuevaCategoriaRow .input {
+  flex: 1;
+}

@@ -21,3 +21,10 @@ export const getVentasPorCliente = async (clienteId) => {
   const { data } = await axiosInstance.get(`/ventas/cliente/${clienteId}`);
   return data;
 };
+
+export const getGanancia = async (inicio, fin) => {
+  const { data } = await axiosInstance.get('/ventas/ganancia', {
+    params: { inicio, fin }
+  });
+  return data;
+};

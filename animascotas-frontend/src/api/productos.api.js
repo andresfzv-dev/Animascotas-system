@@ -56,3 +56,7 @@ export const asignarSintomas = async (presentacionId, sintomaIds) => {
     sintomaIds
   );
 };
+
+export const deletePresentacion = async (id) => {
+  await axiosInstance.delete(`/productos/presentaciones/${id}`);
+};

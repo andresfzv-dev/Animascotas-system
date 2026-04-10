@@ -146,3 +146,12 @@
   color: #1B5E20;
   border: 1px solid #2E7D32;
 }
+
+.gananciaDia {
+  border-color: #2E7D32;
+  background-color: #E8F5E9;
+}
+
+.gananciaDia strong {
+  color: #2E7D32;
+}

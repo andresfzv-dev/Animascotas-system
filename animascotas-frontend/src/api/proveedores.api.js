@@ -39,3 +39,31 @@ export const getTodasFacturas = async () => {
   const { data } = await axiosInstance.get('/proveedores/facturas/todas');
   return data;
 };
+
+export const actualizarFactura = async (facturaId, factura) => {
+  const { data } = await axiosInstance.put(`/proveedores/facturas/${facturaId}`, factura);
+  return data;
+};
+
+export const getAbonosPorFactura = async (facturaId) => {
+  const { data } = await axiosInstance.get(`/proveedores/facturas/${facturaId}/abonos`);
+  return data;
+};
+
+
+
+export const subirImagenFactura = async (facturaId, archivo) => {
+  const formData = new FormData();
+  formData.append('archivo', archivo);
+  const { data } = await axiosInstance.post(
+    `/proveedores/facturas/${facturaId}/imagen`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+  return data;
+};
+
+export const getFacturasPorProveedor = async (proveedorId) => {
+  const { data } = await axiosInstance.get(`/proveedores/${proveedorId}/facturas`);
+  return data;
+};

@@ -374,3 +374,9 @@
   color: #1B5E20;
   border: 1px solid #2E7D32;
 }
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}

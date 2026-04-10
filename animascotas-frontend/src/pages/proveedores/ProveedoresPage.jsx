@@ -9,11 +9,13 @@ import EmptyState from '../../components/common/EmptyState';
 import ProveedorFormModal from './components/ProveedorFormModal';
 import FacturaModal from './components/FacturaModal';
 import AbonoProveedorModal from './components/AbonoProveedorModal';
+import ProveedorDetalleModal from './components/ProveedorDetalleModal'; // ✅ IMPORT AGREGADO
 import styles from './ProveedoresPage.module.css';
 
 const FacturasTabla = ({ facturas }) => {
   const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
   const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   return (
     <>
@@ -30,7 +32,7 @@ const FacturasTabla = ({ facturas }) => {
           <div
             key={f.id}
             className={`${styles.row} ${f.vencida ? styles.rowVencida : ''}`}
-            style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr 0.8fr' }}
+            style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr 1fr' }}
           >
             <span className={styles.nombre}>{f.proveedorNombre}</span>
             <span className={styles.muted}>{f.numeroFactura}</span>
@@ -41,16 +43,28 @@ const FacturasTabla = ({ facturas }) => {
             <span className={`${styles.muted} ${f.vencida ? styles.vencida : ''}`}>
               {f.fechaVencimiento} {f.vencida && '⚠️'}
             </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setFacturaSeleccionada(f);
-                setIsAbonoModalOpen(true);
-              }}
-            >
-              Abonar
-            </Button>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFacturaSeleccionada(f);
+                  setIsEditModalOpen(true);
+                }}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setFacturaSeleccionada(f);
+                  setIsAbonoModalOpen(true);
+                }}
+              >
+                Abonar
+              </Button>
+            </div>
           </div>
         ))}
       </div>
@@ -63,6 +77,16 @@ const FacturasTabla = ({ facturas }) => {
         }}
         factura={facturaSeleccionada}
       />
+
+      <FacturaModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setFacturaSeleccionada(null);
+        }}
+        proveedor={{ nombre: facturaSeleccionada?.proveedorNombre, id: facturaSeleccionada?.proveedorId }}
+        factura={facturaSeleccionada}
+      />
     </>
   );
 };
@@ -72,6 +96,13 @@ const ProveedoresPage = () => {
   const [isFacturaModalOpen, setIsFacturaModalOpen] = useState(false);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
   const [vista, setVista] = useState('proveedores');
+
+  // ✅ ESTADOS AGREGADOS
+  const [isDetalleModalOpen, setIsDetalleModalOpen] = useState(false);
+  const [proveedorDetalle, setProveedorDetalle] = useState(null);
+  const [isEditFacturaOpen, setIsEditFacturaOpen] = useState(false);
+  const [isAbonoOpen, setIsAbonoOpen] = useState(false);
+  const [facturaSeleccionadaDetalle, setFacturaSeleccionadaDetalle] = useState(null);
 
   const { data: proveedores = [], isLoading } = useQuery({
     queryKey: ['proveedores'],
@@ -83,11 +114,11 @@ const ProveedoresPage = () => {
     queryFn: getFacturasPendientes,
   });
 
-const { data: alertas = [] } = useQuery({
-  queryKey: ['alertas-vencimiento'],
-  queryFn: getAlertasVencimiento,
-  staleTime: 0,
-});
+  const { data: alertas = [] } = useQuery({
+    queryKey: ['alertas-vencimiento'],
+    queryFn: getAlertasVencimiento,
+    staleTime: 0,
+  });
 
   const handleRegistrarFactura = (proveedor) => {
     setProveedorSeleccionado(proveedor);
@@ -144,13 +175,27 @@ const { data: alertas = [] } = useQuery({
                 <span className={styles.nombre}>{p.nombre}</span>
                 <span className={styles.muted}>{p.telefono || '—'}</span>
                 <span className={styles.muted}>{p.email || '—'}</span>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleRegistrarFactura(p)}
-                >
-                  + Factura
-                </Button>
+
+                {/* ✅ BOTONES ACTUALIZADOS */}
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setProveedorDetalle(p);
+                      setIsDetalleModalOpen(true);
+                    }}
+                  >
+                    Ver facturas
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleRegistrarFactura(p)}
+                  >
+                    + Factura
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -185,6 +230,43 @@ const { data: alertas = [] } = useQuery({
           setProveedorSeleccionado(null);
         }}
         proveedor={proveedorSeleccionado}
+      />
+
+      {/* ✅ MODALES AGREGADOS */}
+      <ProveedorDetalleModal
+        isOpen={isDetalleModalOpen}
+        onClose={() => {
+          setIsDetalleModalOpen(false);
+          setProveedorDetalle(null);
+        }}
+        proveedor={proveedorDetalle}
+        onEditarFactura={(f) => {
+          setFacturaSeleccionadaDetalle(f);
+          setIsEditFacturaOpen(true);
+        }}
+        onAbonar={(f) => {
+          setFacturaSeleccionadaDetalle(f);
+          setIsAbonoOpen(true);
+        }}
+      />
+
+      <FacturaModal
+        isOpen={isEditFacturaOpen}
+        onClose={() => {
+          setIsEditFacturaOpen(false);
+          setFacturaSeleccionadaDetalle(null);
+        }}
+        proveedor={proveedorDetalle}
+        factura={facturaSeleccionadaDetalle}
+      />
+
+      <AbonoProveedorModal
+        isOpen={isAbonoOpen}
+        onClose={() => {
+          setIsAbonoOpen(false);
+          setFacturaSeleccionadaDetalle(null);
+        }}
+        factura={facturaSeleccionadaDetalle}
       />
     </div>
   );

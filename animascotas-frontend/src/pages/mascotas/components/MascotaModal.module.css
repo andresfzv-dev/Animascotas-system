@@ -69,3 +69,68 @@
   padding-top: 8px;
   border-top: 1px solid var(--color-border);
 }
+
+.cobroInfo {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.cobroRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cobroRow strong { color: var(--color-text); }
+
+.cobroTotal {
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+}
+
+.metodoPago {
+  display: flex;
+  gap: 8px;
+}
+
+.metodoBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: var(--transition);
+}
+
+.metodoActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-background);
+  color: var(--color-primary);
+}
+
+.cambioRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.cambioNegativo {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}

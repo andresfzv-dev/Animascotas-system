@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { FileDown, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getVentasPorFecha } from '../../api/ventas.api';
+import { getVentasPorFecha, getGanancia } from '../../api/ventas.api';
 import { getTodasFacturas } from '../../api/proveedores.api';
 import { getProductos } from '../../api/productos.api';
 import PageHeader from '../../components/common/PageHeader';
@@ -43,6 +43,12 @@ const ReportesPage = () => {
     staleTime: 0,
   });
 
+  const { data: gananciaReporte = { ganancia: 0 } } = useQuery({
+    queryKey: ['ganancia-reporte', fechaInicio, fechaFin],
+    queryFn: () => getGanancia(inicio, fin),
+    staleTime: 0,
+  });
+
   const { data: facturas = [], isLoading: loadingFacturas } = useQuery({
     queryKey: ['todas-facturas'],
     queryFn: getTodasFacturas,
@@ -52,6 +58,12 @@ const ReportesPage = () => {
   const { data: productos = [], isLoading: loadingProductos } = useQuery({
     queryKey: ['productos'],
     queryFn: getProductos,
+  });
+
+  const { data: totalCreditoPendiente = 0 } = useQuery({
+    queryKey: ['total-credito-pendiente'],
+    queryFn: getTotalCreditosPendientes,
+    staleTime: 0,
   });
 
   const totalGeneral = ventas
@@ -65,14 +77,6 @@ const ReportesPage = () => {
   const totalTransferencia = ventas
     .filter((v) => v.metodoPago === 'TRANSFERENCIA')
     .reduce((acc, v) => acc + v.total, 0);
-
-
-
-const { data: totalCreditoPendiente = 0 } = useQuery({
-  queryKey: ['total-credito-pendiente'],
-  queryFn: getTotalCreditosPendientes,
-  staleTime: 0,
-});
 
   const totalAbonos = ventas
     .filter((v) => v.metodoPago === 'ABONO')
@@ -102,14 +106,19 @@ const { data: totalCreditoPendiente = 0 } = useQuery({
     generarReporteDiarioPDF(ventas, `${fechaInicio} al ${fechaFin}`, usuario?.nombre);
   };
 
-  const handleImprimirResumen = async () => {
-    try {
-      await imprimirResumenDia(ventas, `${fechaInicio} al ${fechaFin}`, usuario?.nombre);
-      toast.success('Resumen enviado a la impresora');
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+const handleImprimirResumen = async () => {
+  try {
+    await imprimirResumenDia(
+      ventas,
+      `${fechaInicio} al ${fechaFin}`,
+      usuario?.nombre,
+      Number(gananciaReporte.ganancia)
+    );
+    toast.success('Resumen enviado a la impresora');
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
   if (loadingVentas || loadingFacturas || loadingProductos) return <LoadingSpinner />;
 
@@ -209,16 +218,23 @@ const { data: totalCreditoPendiente = 0 } = useQuery({
                     {ventas.filter((v) => v.metodoPago === 'ABONO').length} abonos
                   </span>
                 </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>Ganancia estimada</span>
+                  <span className={styles.statValue}>
+                    ${Number(gananciaReporte.ganancia).toLocaleString('es-CO', { maximumFractionDigits: 0 })}
+                  </span>
+                  <span className={styles.statSub}>Utilidad del período</span>
+                </div>
               </div>
 
               <div className={styles.statsRow} style={{ marginTop: '12px' }}>
                 <div className={`${styles.statCard} ${styles.statCreditoInfo}`}>
-  <span className={styles.statLabel}>Créditos pendientes de cobro</span>
-  <span className={styles.statValue}>
-    ${Number(totalCreditoPendiente).toLocaleString('es-CO', { maximumFractionDigits: 0 })}
-  </span>
-  <span className={styles.statSub}>Saldo real pendiente</span>
-</div>
+                  <span className={styles.statLabel}>Créditos pendientes de cobro</span>
+                  <span className={styles.statValue}>
+                    ${Number(totalCreditoPendiente).toLocaleString('es-CO', { maximumFractionDigits: 0 })}
+                  </span>
+                  <span className={styles.statSub}>Saldo real pendiente</span>
+                </div>
               </div>
 
               <div className={styles.bottomGrid}>
@@ -233,17 +249,14 @@ const { data: totalCreditoPendiente = 0 } = useQuery({
                       <span>Total</span>
                     </div>
                     {ventas.map((v) => (
-                      <div
-                        key={v.id}
-                        className={`${styles.tablaRow} ${v.metodoPago === 'ABONO' ? styles.rowAbono : ''}`}
-                      >
+                      <div key={v.id} className={`${styles.tablaRow} ${v.metodoPago === 'ABONO' ? styles.rowAbono : ''}`}>
                         <span className={styles.muted}>
                           {format(new Date(v.fecha), 'dd/MM HH:mm')}
                         </span>
                         <span>{v.cliente}</span>
                         <span className={styles.muted}>
                           {v.metodoPago === 'ABONO'
-                            ? 'Abono recibido'
+                            ? '💰 Abono recibido'
                             : v.items.map((i) => `${i.producto} x${i.cantidad}`).join(', ')}
                         </span>
                         <span className={`${styles.metodo} ${getMetodoClase(v.metodoPago, styles)}`}>

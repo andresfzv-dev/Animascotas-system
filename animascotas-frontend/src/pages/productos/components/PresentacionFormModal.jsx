@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { Scan } from 'lucide-react';
 import Modal from '../../../components/common/Modal';
 import Button from '../../../components/common/Button';
-import { createPresentacion, updatePresentacion } from '../../../api/productos.api';
+import { createPresentacion, updatePresentacion, deletePresentacion } from '../../../api/productos.api';
 import styles from './FormModal.module.css';
 
 const presentacionSchema = z.object({
@@ -25,7 +25,6 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
   const isEditing = !!presentacion;
   const codigoBarrasRef = useRef(null);
 
-  const [precioManual, setPrecioManual] = useState(false);
   const [precioVentaManual, setPrecioVentaManual] = useState('');
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
@@ -35,9 +34,7 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
 
   const precioProveedor = watch('precioProveedor') || 0;
   const porcentajeGanancia = watch('porcentajeGanancia') || 0;
-
   const precioVentaCalculado = precioProveedor * (1 + porcentajeGanancia / 100);
-  const precioVentaMostrado = precioManual ? precioVentaManual : precioVentaCalculado;
 
   useEffect(() => {
     if (presentacion) {
@@ -49,11 +46,13 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
         stockMinimo: presentacion.stockMinimo,
         stockInicial: 0,
       });
+      setPrecioVentaManual(presentacion.precioVenta?.toString() || '');
     } else {
       reset({
         variante: '', precioProveedor: '', porcentajeGanancia: 0,
         codigoBarras: '', stockMinimo: 1, stockInicial: 0,
       });
+      setPrecioVentaManual('');
     }
   }, [presentacion, reset]);
 
@@ -61,7 +60,7 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
     mutationFn: (data) => {
       const payload = {
         ...data,
-        precioVenta: precioManual ? Number(precioVentaManual) : null,
+        precioVenta: precioVentaManual ? Number(precioVentaManual) : null,
       };
       return isEditing
         ? updatePresentacion(presentacion.id, payload)
@@ -70,10 +69,31 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productos'] });
       toast.success(isEditing ? 'Presentación actualizada' : 'Presentación creada');
+      reset({
+        variante: '', precioProveedor: '', porcentajeGanancia: 0,
+        codigoBarras: '', stockMinimo: 1, stockInicial: 0,
+      });
+      setPrecioVentaManual('');
       onClose();
     },
     onError: () => toast.error('Ocurrió un error, intenta de nuevo'),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deletePresentacion(presentacion.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
+      toast.success('Presentación eliminada');
+      onClose();
+    },
+    onError: () => toast.error('No se pudo eliminar la presentación'),
+  });
+
+  const handleDelete = () => {
+    if (window.confirm(`¿Eliminar la presentación "${presentacion.variante}"?`)) {
+      deleteMutation.mutate();
+    }
+  };
 
   const handleFocusCodigo = () => {
     codigoBarrasRef.current?.focus();
@@ -111,7 +131,6 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
               <span className={styles.error}>{errors.precioProveedor.message}</span>
             )}
           </div>
-
           <div className={styles.field}>
             <label className={styles.label}>% Ganancia</label>
             <input
@@ -136,16 +155,13 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
           <div className={styles.field} style={{ marginTop: '8px' }}>
             <label className={styles.label}>
               Precio de venta final
-              <span className={styles.hint}> (puedes ajustarlo manualmente)</span>
+              <span className={styles.hint}> (ingrésalo manualmente)</span>
             </label>
             <input
               type="number"
               className={styles.input}
-              value={precioManual ? precioVentaManual : Math.round(precioVentaCalculado)}
-              onChange={(e) => {
-                setPrecioManual(true);
-                setPrecioVentaManual(e.target.value);
-              }}
+              value={precioVentaManual}
+              onChange={(e) => setPrecioVentaManual(e.target.value)}
               placeholder={Math.round(precioVentaCalculado)}
             />
           </div>
@@ -189,7 +205,6 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
               <span className={styles.error}>{errors.stockMinimo.message}</span>
             )}
           </div>
-
           {!isEditing && (
             <div className={styles.field}>
               <label className={styles.label}>Stock inicial</label>
@@ -207,6 +222,16 @@ const PresentacionFormModal = ({ isOpen, onClose, productoId, presentacion }) =>
         </div>
 
         <div className={styles.actions}>
+          {isEditing && (
+            <Button
+              variant="danger"
+              type="button"
+              isLoading={deleteMutation.isPending}
+              onClick={handleDelete}
+            >
+              Eliminar
+            </Button>
+          )}
           <div className={styles.actionsRight}>
             <Button variant="ghost" onClick={onClose} type="button">Cancelar</Button>
             <Button type="submit" isLoading={mutation.isPending}>
