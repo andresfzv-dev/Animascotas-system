@@ -19,4 +19,5 @@ public class VentaResponse {
     private BigDecimal cambio;
     private LocalDateTime fecha;
     private List<VentaItemResponse> items;
+    private BigDecimal ganancia;
 }

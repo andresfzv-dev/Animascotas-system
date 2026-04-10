@@ -47,6 +47,9 @@ public class FacturaProveedor {
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AbonoProveedor> abonos = new ArrayList<>();
 
+    @Column(length = 500)
+    private String imagenUrl;
+
     @PrePersist
     protected void onCreate() {
         this.creadoEn = LocalDateTime.now();

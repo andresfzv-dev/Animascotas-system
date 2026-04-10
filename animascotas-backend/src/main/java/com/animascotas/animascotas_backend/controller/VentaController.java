@@ -10,8 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ventas")
@@ -46,5 +49,11 @@ public class VentaController {
         return ResponseEntity.ok(ventaService.listarPorCliente(clienteId));
     }
 
+    @GetMapping("/ganancia")
+    public ResponseEntity<Map<String, BigDecimal>> obtenerGanancias(
+            @RequestParam String inicio,
+            @RequestParam String fin) {
+        return ResponseEntity.ok(ventaService.calcularGanancias(inicio, fin));
+    }
 
 }

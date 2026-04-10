@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -33,4 +35,7 @@ public class Vacuna {
 
     @Column(nullable = false)
     private LocalDate fechaProximaDosis;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal precio;
 }

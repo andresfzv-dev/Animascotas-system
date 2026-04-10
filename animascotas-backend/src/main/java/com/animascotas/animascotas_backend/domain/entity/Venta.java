@@ -53,4 +53,7 @@ public class Venta {
     protected void onCreate() {
         this.fecha = LocalDateTime.now();
     }
+
+    @Column(length = 200)
+    private String descripcionServicio;
 }

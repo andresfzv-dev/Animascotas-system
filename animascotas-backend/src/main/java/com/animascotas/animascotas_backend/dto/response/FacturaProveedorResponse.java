@@ -17,4 +17,5 @@ public class FacturaProveedorResponse {
     private LocalDate fecha;
     private LocalDate fechaVencimiento;
     private Boolean vencida;
+    private String imagenUrl;
 }

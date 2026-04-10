@@ -97,4 +97,10 @@ public class ProductoController {
         productoService.asignarSintomas(presentacionId, sintomaIds);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/presentaciones/{presentacionId}")
+    public ResponseEntity<Void> eliminarPresentacion(@PathVariable String presentacionId) {
+        productoService.eliminarPresentacion(presentacionId);
+        return ResponseEntity.noContent().build();
+    }
 }

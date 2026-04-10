@@ -69,6 +69,7 @@ public class MascotaService {
         vacuna.setInformacion(request.getInformacion());
         vacuna.setFechaAplicacion(request.getFechaAplicacion());
         vacuna.setFechaProximaDosis(request.getFechaProximaDosis());
+        vacuna.setPrecio(request.getPrecio());
 
         return toVacunaResponse(vacunaRepository.save(vacuna), LocalDate.now());
     }
@@ -96,7 +97,8 @@ public class MascotaService {
                 vacuna.getFechaProximaDosis(),
                 vacuna.getMascota().getNombre(),
                 vacuna.getMascota().getCliente().getNombre(),
-                proximaAVencer
+                proximaAVencer,
+                vacuna.getPrecio()
         );
     }
 }

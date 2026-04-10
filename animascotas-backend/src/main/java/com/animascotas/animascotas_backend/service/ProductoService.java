@@ -97,6 +97,13 @@ public class ProductoService {
     @Transactional
     public void eliminar(String id) {
         Producto producto = findProductoOrThrow(id);
+
+        // Limpiar códigos de barras de presentaciones para que puedan reutilizarse
+        producto.getPresentaciones().forEach(p -> {
+            p.setCodigoBarras(null);
+            presentacionRepository.save(p);
+        });
+
         producto.setActivo(false);
         productoRepository.save(producto);
     }
@@ -268,5 +275,12 @@ public class ProductoService {
                 presentacion.getStock() <= presentacion.getStockMinimo(),
                 sintomas
         );
+    }
+
+    @Transactional
+    public void eliminarPresentacion(String presentacionId) {
+        Presentacion presentacion = findPresentacionOrThrow(presentacionId);
+        movimientoRepository.deleteByPresentacionId(presentacionId);
+        presentacionRepository.delete(presentacion);
     }
 }

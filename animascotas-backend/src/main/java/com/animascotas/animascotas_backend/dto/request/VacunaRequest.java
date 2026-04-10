@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -22,4 +24,6 @@ public class VacunaRequest {
 
     @NotNull(message = "La fecha de próxima dosis es obligatoria")
     private LocalDate fechaProximaDosis;
+
+    private BigDecimal precio;
 }

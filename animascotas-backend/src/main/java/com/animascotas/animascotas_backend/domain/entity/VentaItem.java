@@ -34,4 +34,7 @@ public class VentaItem {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal costoUnitario;
 }

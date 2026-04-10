@@ -19,4 +19,5 @@ public interface FacturaProveedorRepository extends JpaRepository<FacturaProveed
     List<FacturaProveedor> findVencidasOPorVencer(LocalDate fecha);
 
     List<FacturaProveedor> findByProveedorIdIsNotNull();
+
 }

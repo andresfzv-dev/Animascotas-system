@@ -17,4 +17,6 @@ public interface MovimientoInventarioRepository extends JpaRepository<Movimiento
             LocalDateTime inicio,
             LocalDateTime fin
     );
+
+    void deleteByPresentacionId(String presentacionId);
 }
