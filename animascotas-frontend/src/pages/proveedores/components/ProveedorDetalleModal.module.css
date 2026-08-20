@@ -1,0 +1,143 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sinFacturas {
+  text-align: center;
+  padding: 32px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.facturaCard {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 16px;
+  transition: var(--transition);
+}
+
+.cardVencida {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+.facturaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.facturaInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.facturaNumero {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.facturaAcciones {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.iconBtn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.facturaDetalles {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detalleLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.estadoBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.estadoPagada { background-color: #E8F5E9; color: #2E7D32; }
+.estadoVencida { background-color: var(--color-danger-light); color: var(--color-danger); }
+.estadoPendiente { background-color: #FFF8E1; color: #F57F17; }
+
+.vencidaText { color: var(--color-danger); font-weight: 600; }
+.pagadoText { color: var(--color-primary); font-weight: 500; }
+.pendienteText { color: var(--color-danger); font-weight: 600; }
+
+.imagenContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.imagenLabel { flex: 1; }
+
+.verImagenLink {
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}
+
+.verImagenLink:hover { text-decoration: underline; }
+
+.sinImagen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: 1px dashed var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

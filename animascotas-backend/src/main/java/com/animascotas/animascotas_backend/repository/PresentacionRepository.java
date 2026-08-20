@@ -21,4 +21,6 @@ public interface PresentacionRepository extends JpaRepository<Presentacion, Stri
 
     @Query("SELECT p FROM Presentacion p JOIN p.sintomas s WHERE s.id = :sintomaId")
     List<Presentacion> findBySintomaId(String sintomaId);
+
+    Optional<Presentacion> findByCodigoBarrasAndActivoTrue(String codigoBarras);
 }

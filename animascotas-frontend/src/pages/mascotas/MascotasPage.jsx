@@ -9,6 +9,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
 import MascotaFormModal from './components/MascotaFormModal';
 import VacunaFormModal from './components/VacunaFormModal';
+import HistorialVacunasModal from './components/HistorialVacunasModal';
 import styles from './MascotasPage.module.css';
 
 const MascotasPage = () => {
@@ -17,6 +18,7 @@ const MascotasPage = () => {
   const [isMascotaModalOpen, setIsMascotaModalOpen] = useState(false);
   const [isVacunaModalOpen, setIsVacunaModalOpen] = useState(false);
   const [mascotaSeleccionada, setMascotaSeleccionada] = useState(null);
+  const [isHistorialModalOpen, setIsHistorialModalOpen] = useState(false);
 
   const { data: clientes = [] } = useQuery({
     queryKey: ['clientes'],
@@ -53,6 +55,11 @@ const MascotasPage = () => {
   const handleRegistrarVacuna = (mascota) => {
     setMascotaSeleccionada(mascota);
     setIsVacunaModalOpen(true);
+  };
+
+  const handleVerHistorial = (mascota) => {
+    setMascotaSeleccionada(mascota);
+    setIsHistorialModalOpen(true);
   };
 
   return (
@@ -135,13 +142,22 @@ const MascotasPage = () => {
                       Nacimiento: {mascota.fechaNacimiento}
                     </p>
                   )}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleRegistrarVacuna(mascota)}
-                  >
-                    + Registrar vacuna
-                  </Button>
+                  <div className={styles.cardActions}>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleRegistrarVacuna(mascota)}
+                    >
+                      + Registrar vacuna
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleVerHistorial(mascota)}
+                    >
+                      Ver historial
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -186,6 +202,15 @@ const MascotasPage = () => {
         isOpen={isVacunaModalOpen}
         onClose={() => {
           setIsVacunaModalOpen(false);
+          setMascotaSeleccionada(null);
+        }}
+        mascota={mascotaSeleccionada}
+      />
+
+      <HistorialVacunasModal
+        isOpen={isHistorialModalOpen}
+        onClose={() => {
+          setIsHistorialModalOpen(false);
           setMascotaSeleccionada(null);
         }}
         mascota={mascotaSeleccionada}

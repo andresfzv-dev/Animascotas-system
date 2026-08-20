@@ -1,8 +1,29 @@
 import qz from 'qz-tray';
+import axiosInstance from '../api/axios.config';
 
-qz.security.setCertificatePromise((resolve) => resolve());
+// Certificado público — se pide una sola vez y se cachea
+let certificadoCache = null;
+
+qz.security.setCertificatePromise((resolve, reject) => {
+  if (certificadoCache) {
+    resolve(certificadoCache);
+    return;
+  }
+  axiosInstance.get('/qz/cert')
+    .then((res) => {
+      certificadoCache = res.data;
+      resolve(certificadoCache);
+    })
+    .catch(reject);
+});
+
 qz.security.setSignatureAlgorithm('SHA512');
-qz.security.setSignaturePromise((toSign) => (resolve) => resolve());
+
+qz.security.setSignaturePromise((toSign) => (resolve, reject) => {
+  axiosInstance.post('/qz/sign', { request: toSign })
+    .then((res) => resolve(res.data.signature))
+    .catch(reject);
+});
 
 const IMPRESORA = 'XP-58';
 
@@ -37,16 +58,16 @@ export const imprimirTicketVenta = async (venta, cajero) => {
     });
 
     const lineas = [
-      '\x1B@',           // Init
-      '\x1Ba\x01',       // Centro
-      '\x1BE\x01',       // Bold on
-      '\x1B!\x30',       // Fuente grande
+      '\x1B@',
+      '\x1Ba\x01',
+      '\x1BE\x01',
+      '\x1B!\x30',
       'ANIMASCOTAS\n',
-      '\x1B!\x00',       // Fuente normal
-      '\x1BE\x00',       // Bold off
+      '\x1B!\x00',
+      '\x1BE\x00',
       'La Tebaida, Quindio\n',
       '\n',
-      '\x1Ba\x00',       // Izquierda
+      '\x1Ba\x00',
       separador(),
       `Fecha: ${fecha}\n`,
       `Cajero: ${cajero}\n`,
@@ -78,7 +99,7 @@ export const imprimirTicketVenta = async (venta, cajero) => {
       '\n',
       '\n',
       '\n',
-      '\x1DVA\x03',     // Corte
+      '\x1DVA\x03',
     ];
 
     await qz.print(config, [{ type: 'raw', format: 'plain', data: lineas.join('') }]);

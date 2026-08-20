@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { FileDown, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getVentasPorFecha, getGanancia } from '../../api/ventas.api';
@@ -24,6 +24,7 @@ const getMetodoClase = (metodo, estilos) => {
   if (metodo === 'EFECTIVO') return estilos.efectivo;
   if (metodo === 'TRANSFERENCIA') return estilos.transferencia;
   if (metodo === 'CREDITO') return estilos.credito;
+  if (metodo === 'MIXTO') return estilos.mixto;
   return estilos.abono;
 };
 
@@ -33,18 +34,29 @@ const ReportesPage = () => {
   const [fechaInicio, setFechaInicio] = useState(hoy);
   const [fechaFin, setFechaFin] = useState(hoy);
   const [vistaReporte, setVistaReporte] = useState('ventas');
+  const [modoFiltro, setModoFiltro] = useState('rango'); // 'rango' | 'mes'
+  const [mesSeleccionado, setMesSeleccionado] = useState(format(new Date(), 'yyyy-MM'));
 
-  const inicio = `${fechaInicio}T00:00:00`;
-  const fin = `${fechaFin}T23:59:59`;
+  const inicio = modoFiltro === 'mes'
+    ? `${format(startOfMonth(new Date(`${mesSeleccionado}-01`)), 'yyyy-MM-dd')}T00:00:00`
+    : `${fechaInicio}T00:00:00`;
+
+  const fin = modoFiltro === 'mes'
+    ? `${format(endOfMonth(new Date(`${mesSeleccionado}-01`)), 'yyyy-MM-dd')}T23:59:59`
+    : `${fechaFin}T23:59:59`;
+
+  const periodoTexto = modoFiltro === 'mes'
+    ? format(new Date(`${mesSeleccionado}-01`), 'MMMM yyyy')
+    : `${fechaInicio} al ${fechaFin}`;
 
   const { data: ventas = [], isLoading: loadingVentas } = useQuery({
-    queryKey: ['ventas-reporte', fechaInicio, fechaFin],
+    queryKey: ['ventas-reporte', modoFiltro, fechaInicio, fechaFin, mesSeleccionado],
     queryFn: () => getVentasPorFecha(inicio, fin),
     staleTime: 0,
   });
 
   const { data: gananciaReporte = { ganancia: 0 } } = useQuery({
-    queryKey: ['ganancia-reporte', fechaInicio, fechaFin],
+    queryKey: ['ganancia-reporte', modoFiltro, fechaInicio, fechaFin, mesSeleccionado],
     queryFn: () => getGanancia(inicio, fin),
     staleTime: 0,
   });
@@ -72,10 +84,20 @@ const ReportesPage = () => {
 
   const totalEfectivo = ventas
     .filter((v) => v.metodoPago === 'EFECTIVO')
-    .reduce((acc, v) => acc + v.total, 0);
+    .reduce((acc, v) => acc + v.total, 0) +
+    ventas
+      .filter((v) => v.metodoPago === 'MIXTO')
+      .reduce((acc, v) => acc + (v.montoEfectivo || 0), 0);
 
   const totalTransferencia = ventas
     .filter((v) => v.metodoPago === 'TRANSFERENCIA')
+    .reduce((acc, v) => acc + v.total, 0) +
+    ventas
+      .filter((v) => v.metodoPago === 'MIXTO')
+      .reduce((acc, v) => acc + (v.montoTransferencia || 0), 0);
+
+  const totalMixto = ventas
+    .filter((v) => v.metodoPago === 'MIXTO')
     .reduce((acc, v) => acc + v.total, 0);
 
   const totalAbonos = ventas
@@ -103,22 +125,22 @@ const ReportesPage = () => {
     .reduce((acc, f) => acc + f.saldoPendiente, 0);
 
   const handleExportarPDF = () => {
-    generarReporteDiarioPDF(ventas, `${fechaInicio} al ${fechaFin}`, usuario?.nombre);
+    generarReporteDiarioPDF(ventas, periodoTexto, usuario?.nombre);
   };
 
-const handleImprimirResumen = async () => {
-  try {
-    await imprimirResumenDia(
-      ventas,
-      `${fechaInicio} al ${fechaFin}`,
-      usuario?.nombre,
-      Number(gananciaReporte.ganancia)
-    );
-    toast.success('Resumen enviado a la impresora');
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
+  const handleImprimirResumen = async () => {
+    try {
+      await imprimirResumenDia(
+        ventas,
+        periodoTexto,
+        usuario?.nombre,
+        Number(gananciaReporte.ganancia)
+      );
+      toast.success('Resumen enviado a la impresora');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   if (loadingVentas || loadingFacturas || loadingProductos) return <LoadingSpinner />;
 
@@ -145,23 +167,49 @@ const handleImprimirResumen = async () => {
           <div className={styles.toolbarReporte}>
             <div className={styles.filtros}>
               <div className={styles.filtroField}>
-                <label className={styles.filtroLabel}>Desde</label>
-                <input
-                  type="date"
+                <label className={styles.filtroLabel}>Buscar por</label>
+                <select
                   className={styles.filtroInput}
-                  value={fechaInicio}
-                  onChange={(e) => setFechaInicio(e.target.value)}
-                />
+                  value={modoFiltro}
+                  onChange={(e) => setModoFiltro(e.target.value)}
+                >
+                  <option value="rango">Rango de fechas</option>
+                  <option value="mes">Mes</option>
+                </select>
               </div>
-              <div className={styles.filtroField}>
-                <label className={styles.filtroLabel}>Hasta</label>
-                <input
-                  type="date"
-                  className={styles.filtroInput}
-                  value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
-                />
-              </div>
+
+              {modoFiltro === 'rango' ? (
+                <>
+                  <div className={styles.filtroField}>
+                    <label className={styles.filtroLabel}>Desde</label>
+                    <input
+                      type="date"
+                      className={styles.filtroInput}
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.filtroField}>
+                    <label className={styles.filtroLabel}>Hasta</label>
+                    <input
+                      type="date"
+                      className={styles.filtroInput}
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className={styles.filtroField}>
+                  <label className={styles.filtroLabel}>Mes</label>
+                  <input
+                    type="month"
+                    className={styles.filtroInput}
+                    value={mesSeleccionado}
+                    onChange={(e) => setMesSeleccionado(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             {ventas.length > 0 && (
               <div className={styles.headerActions}>
@@ -178,7 +226,7 @@ const handleImprimirResumen = async () => {
           </div>
 
           {ventas.length === 0 ? (
-            <EmptyState message="No hay ventas en el rango de fechas seleccionado" />
+            <EmptyState message="No hay ventas en el período seleccionado" />
           ) : (
             <div className={styles.content}>
               <div className={styles.statsRow}>
@@ -196,17 +244,22 @@ const handleImprimirResumen = async () => {
                   <span className={styles.statValue}>
                     ${totalEfectivo.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
                   </span>
-                  <span className={styles.statSub}>
-                    {ventas.filter((v) => v.metodoPago === 'EFECTIVO').length} ventas
-                  </span>
+                  <span className={styles.statSub}>Incluye pagos mixtos</span>
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Transferencia</span>
                   <span className={styles.statValue}>
                     ${totalTransferencia.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
                   </span>
+                  <span className={styles.statSub}>Incluye pagos mixtos</span>
+                </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>Pagos mixtos</span>
+                  <span className={styles.statValue}>
+                    ${totalMixto.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
+                  </span>
                   <span className={styles.statSub}>
-                    {ventas.filter((v) => v.metodoPago === 'TRANSFERENCIA').length} ventas
+                    {ventas.filter((v) => v.metodoPago === 'MIXTO').length} ventas
                   </span>
                 </div>
                 <div className={styles.statCard}>

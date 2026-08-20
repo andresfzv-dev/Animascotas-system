@@ -1,0 +1,48 @@
+# ==============================
+# ANIMASCOTAS - ROOT GITIGNORE
+# ==============================
+
+# ------------------------------
+# Backend - Java / Maven
+# ------------------------------
+animascotas-backend/target/
+animascotas-backend/.idea/
+animascotas-backend/.vscode/
+
+# ------------------------------
+# Frontend - Node / Vite
+# ------------------------------
+animascotas-frontend/node_modules/
+animascotas-frontend/dist/
+animascotas-frontend/dist-ssr/
+
+# ------------------------------
+# Environment variables
+# ------------------------------
+.env
+.env.*
+*.env
+
+# ------------------------------
+# Certificates / private keys
+# ------------------------------
+*.pem
+*.key
+
+# ------------------------------
+# Uploaded/generated files
+# ------------------------------
+animascotas-backend/uploads/
+
+# ------------------------------
+# Client deployment package
+# ------------------------------
+animascotas-deploy/
+
+# ------------------------------
+# IDE / OS
+# ------------------------------
+.idea/
+.vscode/
+.DS_Store
+*.iml

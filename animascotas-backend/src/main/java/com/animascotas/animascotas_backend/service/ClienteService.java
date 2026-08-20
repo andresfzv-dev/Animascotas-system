@@ -48,15 +48,18 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponse crear(ClienteRequest request) {
-        if (request.getTelefono() != null
-                && clienteRepository.existsByTelefono(request.getTelefono())) {
+        String telefono = (request.getTelefono() != null && !request.getTelefono().isBlank())
+                ? request.getTelefono()
+                : null;
+
+        if (telefono != null && clienteRepository.existsByTelefono(telefono)) {
             throw new BusinessException(
-                    "Ya existe un cliente con el teléfono: " + request.getTelefono());
+                    "Ya existe un cliente con el teléfono: " + telefono);
         }
 
         Cliente cliente = new Cliente();
         cliente.setNombre(request.getNombre());
-        cliente.setTelefono(request.getTelefono());
+        cliente.setTelefono(telefono);
         cliente.setActivo(true);
 
         return toResponse(clienteRepository.save(cliente));
@@ -66,15 +69,19 @@ public class ClienteService {
     public ClienteResponse actualizar(String id, ClienteRequest request) {
         Cliente cliente = findClienteOrThrow(id);
 
-        if (request.getTelefono() != null
-                && !request.getTelefono().equals(cliente.getTelefono())
-                && clienteRepository.existsByTelefono(request.getTelefono())) {
+        String telefono = (request.getTelefono() != null && !request.getTelefono().isBlank())
+                ? request.getTelefono()
+                : null;
+
+        if (telefono != null
+                && !telefono.equals(cliente.getTelefono())
+                && clienteRepository.existsByTelefono(telefono)) {
             throw new BusinessException(
-                    "Ya existe un cliente con el teléfono: " + request.getTelefono());
+                    "Ya existe un cliente con el teléfono: " + telefono);
         }
 
         cliente.setNombre(request.getNombre());
-        cliente.setTelefono(request.getTelefono());
+        cliente.setTelefono(telefono);
 
         return toResponse(clienteRepository.save(cliente));
     }
@@ -141,11 +148,18 @@ public class ClienteService {
     }
 
     private ClienteResponse toResponse(Cliente cliente) {
+        boolean tieneCredito = creditoRepository.findByClienteId(cliente.getId()).isPresent();
+
+        boolean tieneVacunas = cliente.getMascotas().stream()
+                .anyMatch(m -> !m.getVacunas().isEmpty());
+
         return new ClienteResponse(
                 cliente.getId(),
                 cliente.getNombre(),
                 cliente.getTelefono(),
-                cliente.getActivo()
+                cliente.getActivo(),
+                tieneCredito,
+                tieneVacunas
         );
     }
 

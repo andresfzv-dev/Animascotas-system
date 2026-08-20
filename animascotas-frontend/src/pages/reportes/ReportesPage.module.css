@@ -377,6 +377,11 @@
 
 .statsRow {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 16px;
+}
+
+.mixto {
+  background-color: #F3E5F5;
+  color: #6A1B9A;
 }

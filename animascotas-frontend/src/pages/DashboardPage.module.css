@@ -243,3 +243,22 @@
   background-color: #E8F5E9;
   color: #1B5E20;
 }
+
+.backupBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.backupBtn:hover {
+  background: #f3f4f6;
+}

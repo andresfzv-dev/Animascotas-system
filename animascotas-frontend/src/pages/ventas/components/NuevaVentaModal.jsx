@@ -16,6 +16,8 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
   const [metodoPago, setMetodoPago] = useState('EFECTIVO');
   const [clienteId, setClienteId] = useState('');
   const [montoRecibido, setMontoRecibido] = useState('');
+  const [montoEfectivo, setMontoEfectivo] = useState('');
+  const [montoTransferencia, setMontoTransferencia] = useState('');
   const [esCredito, setEsCredito] = useState(false);
   const codigoRef = useRef(null);
 
@@ -31,6 +33,8 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
 
   const total = items.reduce((acc, item) => acc + item.subtotal, 0);
   const cambio = montoRecibido ? Number(montoRecibido) - total : 0;
+  const sumaMixta = (Number(montoEfectivo) || 0) + (Number(montoTransferencia) || 0);
+  const cambioMixto = sumaMixta - total;
 
   useEffect(() => {
     if (metodoPago === 'TRANSFERENCIA') {
@@ -66,7 +70,15 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
     setBusqueda('');
     const existente = items.find((i) => i.presentacionId === presentacion.id);
     if (existente) {
+      if (existente.cantidad >= presentacion.stock) {
+        toast.error('No hay más stock disponible');
+        return;
+      }
       actualizarCantidad(presentacion.id, existente.cantidad + 1);
+      return;
+    }
+    if (presentacion.stock === 0) {
+      toast.error('Sin stock disponible');
       return;
     }
     setItems((prev) => [
@@ -83,13 +95,24 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
   };
 
   const actualizarCantidad = (presentacionId, nuevaCantidad) => {
-    if (nuevaCantidad < 1) return;
+    if (nuevaCantidad === '' || nuevaCantidad === '0') {
+      setItems((prev) =>
+        prev.map((item) =>
+          item.presentacionId === presentacionId
+            ? { ...item, cantidad: nuevaCantidad }
+            : item
+        )
+      );
+      return;
+    }
+    const num = Number(nuevaCantidad);
+    if (num < 1) return;
     setItems((prev) =>
-      prev.map((item) =>
-        item.presentacionId === presentacionId
-          ? { ...item, cantidad: nuevaCantidad, subtotal: item.precio * nuevaCantidad }
-          : item
-      )
+      prev.map((item) => {
+        if (item.presentacionId !== presentacionId) return item;
+        const cantidadFinal = Math.min(num, item.stockDisponible);
+        return { ...item, cantidad: cantidadFinal, subtotal: item.precio * cantidadFinal };
+      })
     );
   };
 
@@ -157,16 +180,27 @@ const NuevaVentaModal = ({ isOpen, onClose }) => {
       toast.error('El monto recibido es insuficiente');
       return;
     }
-mutation.mutate({
-  clienteId: clienteId || null,
-  metodoPago: esCredito ? 'CREDITO' : metodoPago,
-  montoRecibido: esCredito ? 0 : Number(montoRecibido),
-  esCredito,
-  items: items.map((i) => ({
-    presentacionId: i.presentacionId,
-    cantidad: i.cantidad,
-  })),
-});
+    if (!esCredito && metodoPago === 'MIXTO' && sumaMixta < total) {
+      toast.error('La suma de efectivo y transferencia es insuficiente');
+      return;
+    }
+
+    mutation.mutate({
+      clienteId: clienteId || null,
+      metodoPago: esCredito ? 'CREDITO' : metodoPago,
+      montoRecibido: esCredito
+        ? 0
+        : metodoPago === 'MIXTO'
+        ? sumaMixta
+        : Number(montoRecibido),
+      montoEfectivo: metodoPago === 'MIXTO' ? Number(montoEfectivo) || 0 : null,
+      montoTransferencia: metodoPago === 'MIXTO' ? Number(montoTransferencia) || 0 : null,
+      esCredito,
+      items: items.map((i) => ({
+        presentacionId: i.presentacionId,
+        cantidad: i.cantidad,
+      })),
+    });
   };
 
   const handleClose = () => {
@@ -175,6 +209,8 @@ mutation.mutate({
     setMetodoPago('EFECTIVO');
     setClienteId('');
     setMontoRecibido('');
+    setMontoEfectivo('');
+    setMontoTransferencia('');
     setEsCredito(false);
     onClose();
   };
@@ -245,18 +281,38 @@ mutation.mutate({
                   <div className={styles.itemControles}>
                     <button
                       className={styles.cantBtn}
-                      onClick={() =>
-                        actualizarCantidad(item.presentacionId, item.cantidad - 1)
-                      }
+                      onClick={() => actualizarCantidad(item.presentacionId, item.cantidad - 1)}
                     >
                       <Minus size={14} />
                     </button>
-                    <span className={styles.cantidad}>{item.cantidad}</span>
+                    <input
+                      type="number"
+                      className={styles.cantidadInput}
+                      value={item.cantidad}
+                      min={1}
+                      max={item.stockDisponible}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === '' || raw === '0') {
+                          actualizarCantidad(item.presentacionId, raw);
+                          return;
+                        }
+                        const val = parseInt(raw);
+                        if (!isNaN(val)) {
+                          actualizarCantidad(item.presentacionId, Math.min(val, item.stockDisponible));
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (isNaN(val) || val < 1) {
+                          actualizarCantidad(item.presentacionId, 1);
+                        }
+                      }}
+                      onFocus={(e) => e.target.select()}
+                    />
                     <button
                       className={styles.cantBtn}
-                      onClick={() =>
-                        actualizarCantidad(item.presentacionId, item.cantidad + 1)
-                      }
+                      onClick={() => actualizarCantidad(item.presentacionId, item.cantidad + 1)}
                       disabled={item.cantidad >= item.stockDisponible}
                     >
                       <Plus size={14} />
@@ -317,7 +373,7 @@ mutation.mutate({
               <div className={styles.resumenField}>
                 <label className={styles.resumenLabel}>Método de pago</label>
                 <div className={styles.metodoPago}>
-                  {['EFECTIVO', 'TRANSFERENCIA'].map((m) => (
+                  {['EFECTIVO', 'TRANSFERENCIA', 'MIXTO'].map((m) => (
                     <button
                       key={m}
                       type="button"
@@ -326,7 +382,9 @@ mutation.mutate({
                       }`}
                       onClick={() => setMetodoPago(m)}
                     >
-                      {m === 'EFECTIVO' ? '💵 Efectivo' : '📲 Transferencia'}
+                      {m === 'EFECTIVO' && '💵 Efectivo'}
+                      {m === 'TRANSFERENCIA' && '📲 Transferencia'}
+                      {m === 'MIXTO' && '🔀 Mixto'}
                     </button>
                   ))}
                 </div>
@@ -375,6 +433,39 @@ mutation.mutate({
                   readOnly
                 />
               </div>
+            )}
+
+            {!esCredito && metodoPago === 'MIXTO' && (
+              <>
+                <div className={styles.resumenField}>
+                  <label className={styles.resumenLabel}>Monto en efectivo</label>
+                  <input
+                    type="number"
+                    className={styles.resumenInput}
+                    placeholder="0"
+                    value={montoEfectivo}
+                    onChange={(e) => setMontoEfectivo(e.target.value)}
+                  />
+                </div>
+                <div className={styles.resumenField}>
+                  <label className={styles.resumenLabel}>Monto en transferencia</label>
+                  <input
+                    type="number"
+                    className={styles.resumenInput}
+                    placeholder="0"
+                    value={montoTransferencia}
+                    onChange={(e) => setMontoTransferencia(e.target.value)}
+                  />
+                </div>
+                <div
+                  className={`${styles.cambioRow} ${
+                    cambioMixto < 0 ? styles.cambioNegativo : ''
+                  }`}
+                >
+                  <span>{cambioMixto < 0 ? 'Falta' : 'Sobra'}</span>
+                  <strong>${Math.abs(cambioMixto).toLocaleString('es-CO')}</strong>
+                </div>
+              </>
             )}
 
             {esCredito && (

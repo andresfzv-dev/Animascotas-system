@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { FileDown, Receipt, Printer } from 'lucide-react';
@@ -7,16 +7,20 @@ import { getVentasPorFecha, getGanancia } from '../../../api/ventas.api';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import EmptyState from '../../../components/common/EmptyState';
 import Button from '../../../components/common/Button';
+import { deleteVenta } from '../../../api/ventas.api';
+import { Trash2 } from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import { generarReporteDiarioPDF, generarTicketVentaPDF } from '../../../utils/reportes';
 import { imprimirTicketVenta, imprimirResumenDia } from '../../../utils/impresora';
 import toast from 'react-hot-toast';
 import styles from './HistorialVentas.module.css';
 
+
 const getMetodoClase = (metodo, estilos) => {
   if (metodo === 'EFECTIVO') return estilos.efectivo;
   if (metodo === 'TRANSFERENCIA') return estilos.transferencia;
   if (metodo === 'CREDITO') return estilos.credito;
+  if (metodo === 'MIXTO') return estilos.mixto;
   return estilos.abono;
 };
 
@@ -65,21 +69,40 @@ const HistorialVentas = () => {
     }
   };
 
-const handleImprimirResumen = async () => {
-  try {
-    await imprimirResumenDia(
-      ventasFiltradas,
-      fecha,
-      usuario?.nombre,
-      Number(gananciaData.ganancia)
-    );
-    toast.success('Resumen enviado a la impresora');
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
+  const handleImprimirResumen = async () => {
+    try {
+      await imprimirResumenDia(
+        ventasFiltradas,
+        fecha,
+        usuario?.nombre,
+        Number(gananciaData.ganancia)
+      );
+      toast.success('Resumen enviado a la impresora');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteVenta(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ventas'] });
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
+      toast.success('Venta eliminada y stock revertido');
+    },
+    onError: () => toast.error('No se pudo eliminar la venta'),
+  });
+
+  const handleEliminarVenta = (venta) => {
+    if (window.confirm(`¿Eliminar la venta de ${venta.cliente} por $${venta.total.toLocaleString('es-CO')}? El stock se revertirá automáticamente.`)) {
+      deleteMutation.mutate(venta.id);
+    }
+  };
 
   if (isLoading) return <LoadingSpinner />;
+
 
   return (
     <div>
@@ -105,6 +128,7 @@ const handleImprimirResumen = async () => {
           <option value="">Todos los métodos</option>
           <option value="EFECTIVO">Efectivo</option>
           <option value="TRANSFERENCIA">Transferencia</option>
+          <option value="MIXTO">Mixto</option>
           <option value="CREDITO">Crédito</option>
           <option value="ABONO">Abono</option>
         </select>
@@ -176,6 +200,12 @@ const handleImprimirResumen = async () => {
               </div>
               <span className={`${styles.metodo} ${getMetodoClase(v.metodoPago, styles)}`}>
                 {v.metodoPago}
+                {v.metodoPago === 'MIXTO' && v.montoEfectivo != null && (
+                  <span className={styles.mixtoDesglose}>
+                    {' '}(${v.montoEfectivo.toLocaleString('es-CO')} ef. + $
+                    {v.montoTransferencia.toLocaleString('es-CO')} transf.)
+                  </span>
+                )}
               </span>
               <span className={styles.total}>
                 ${v.total.toLocaleString('es-CO', { maximumFractionDigits: 0 })}
@@ -202,6 +232,13 @@ const handleImprimirResumen = async () => {
                       title="Imprimir ticket"
                     >
                       <Printer size={15} />
+                    </button>
+                    <button
+                      className={`${styles.ticketBtn} ${styles.deleteBtn}`}
+                      onClick={() => handleEliminarVenta(v)}
+                      title="Eliminar venta"
+                    >
+                      <Trash2 size={15} />
                     </button>
                   </>
                 )}

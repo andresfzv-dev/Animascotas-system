@@ -19,3 +19,8 @@ export const registrarVacuna = async (mascotaId, vacuna) => {
   const { data } = await axiosInstance.post(`/mascotas/${mascotaId}/vacunas`, vacuna);
   return data;
 };
+
+export const getVacunasPorMascota = async (mascotaId) => {
+  const { data } = await axiosInstance.get(`/mascotas/${mascotaId}/vacunas`);
+  return data;
+};

@@ -155,3 +155,25 @@
 .gananciaDia strong {
   color: #2E7D32;
 }
+
+.deleteBtn {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.deleteBtn:hover {
+  background-color: var(--color-danger-light);
+}
+
+.mixto {
+  background-color: #F3E5F5;
+  color: #6A1B9A;
+}
+
+.mixtoDesglose {
+  font-size: 0.65rem;
+  font-weight: 400;
+  opacity: 0.85;
+  display: block;
+  margin-top: 2px;
+}

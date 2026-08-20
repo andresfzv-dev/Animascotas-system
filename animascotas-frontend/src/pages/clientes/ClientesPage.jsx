@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Plus, CreditCard } from 'lucide-react';
+import { Plus, CreditCard, Syringe } from 'lucide-react';
 import { getClientes } from '../../api/clientes.api';
 import PageHeader from '../../components/common/PageHeader';
 import SearchBar from '../../components/common/SearchBar';
@@ -9,13 +9,17 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
 import ClienteFormModal from './components/ClienteFormModal';
 import CreditoModal from './components/CreditoModal';
+import HistorialVacunasClienteModal from './components/HistorialVacunasClienteModal';
 import styles from './ClientesPage.module.css';
 
 const ClientesPage = () => {
   const [search, setSearch] = useState('');
   const [isClienteModalOpen, setIsClienteModalOpen] = useState(false);
   const [isCreditoModalOpen, setIsCreditoModalOpen] = useState(false);
+  const [isVacunasModalOpen, setIsVacunasModalOpen] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [filtroCredito, setFiltroCredito] = useState(false);
+  const [filtroSoloVacunas, setFiltroSoloVacunas] = useState(false);
 
   const { data: clientes = [], isLoading } = useQuery({
     queryKey: ['clientes'],
@@ -27,6 +31,8 @@ const ClientesPage = () => {
       c.nombre.toLowerCase().includes(search.toLowerCase()) ||
       (c.telefono && c.telefono.includes(search))
     )
+    .filter((c) => (filtroCredito ? c.tieneCredito : true))
+    .filter((c) => (filtroSoloVacunas ? (!c.tieneCredito && c.tieneVacunas) : true))
     .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
   const handleNuevoCliente = () => {
@@ -44,6 +50,11 @@ const ClientesPage = () => {
     setIsCreditoModalOpen(true);
   };
 
+  const handleVerVacunas = (cliente) => {
+    setClienteSeleccionado(cliente);
+    setIsVacunasModalOpen(true);
+  };
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -59,12 +70,24 @@ const ClientesPage = () => {
         }
       />
 
-      <div style={{ marginBottom: '20px' }}>
+      <div className={styles.filtrosBar}>
         <SearchBar
           value={search}
           onChange={setSearch}
           placeholder="Buscar por nombre o teléfono..."
         />
+        <button
+          className={`${styles.filtroToggle} ${filtroCredito ? styles.filtroToggleActive : ''}`}
+          onClick={() => setFiltroCredito(!filtroCredito)}
+        >
+          Con crédito
+        </button>
+        <button
+          className={`${styles.filtroToggle} ${filtroSoloVacunas ? styles.filtroToggleActive : ''}`}
+          onClick={() => setFiltroSoloVacunas(!filtroSoloVacunas)}
+        >
+          Solo vacunas
+        </button>
       </div>
 
       {clientesFiltrados.length === 0 ? (
@@ -98,6 +121,16 @@ const ClientesPage = () => {
                   <CreditCard size={15} />
                   Crédito
                 </Button>
+                {cliente.tieneVacunas && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleVerVacunas(cliente)}
+                  >
+                    <Syringe size={15} />
+                    Vacunas
+                  </Button>
+                )}
               </div>
             </div>
           ))}
@@ -117,6 +150,15 @@ const ClientesPage = () => {
         isOpen={isCreditoModalOpen}
         onClose={() => {
           setIsCreditoModalOpen(false);
+          setClienteSeleccionado(null);
+        }}
+        cliente={clienteSeleccionado}
+      />
+
+      <HistorialVacunasClienteModal
+        isOpen={isVacunasModalOpen}
+        onClose={() => {
+          setIsVacunasModalOpen(false);
           setClienteSeleccionado(null);
         }}
         cliente={clienteSeleccionado}

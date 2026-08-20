@@ -27,6 +27,9 @@ public class Presentacion {
     @Column(nullable = false, length = 100)
     private String variante;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean activo = true;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precioProveedor;
 
