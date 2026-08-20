@@ -1,9 +1,9 @@
 package com.animascotas.animascotas_backend.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.ResponseEntity;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -71,7 +71,6 @@ public class BackupController {
         process.waitFor();
     }
 
-
     @PostMapping("/importar")
     public ResponseEntity<String> importarBackup(@RequestParam("archivo") MultipartFile archivo) throws Exception {
         try {
@@ -81,7 +80,7 @@ public class BackupController {
                     "-p", getDbPort(),
                     "-U", "animascotas_user",
                     "-d", "animascotas",
-                    "--set", "ON_ERROR_STOP=off"
+                    "--set", "ON_ERROR_STOP=on"
             );
             pb.environment().put("PGPASSWORD", getDbPassword());
             pb.redirectErrorStream(true);
@@ -94,8 +93,11 @@ public class BackupController {
 
             String output = new String(process.getInputStream().readAllBytes());
             int exitCode = process.waitFor();
-            System.out.println("psql output: " + output);
-            System.out.println("psql exit code: " + exitCode);
+
+            if (exitCode != 0) {
+                return ResponseEntity.status(500)
+                        .body("Error al importar el backup");
+            }
 
             return ResponseEntity.ok("Backup importado correctamente");
         } catch (Exception e) {
