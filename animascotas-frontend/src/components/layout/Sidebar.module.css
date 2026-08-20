@@ -23,7 +23,6 @@
 }
 
 .nav {
-  flex: 1;
   padding: 16px 0;
   overflow-y: auto;
 }
@@ -63,4 +62,68 @@
   height: 1px;
   background-color: rgba(255, 255, 255, 0.1);
   margin: 8px 0;
+}
+
+.footer {
+  position: relative;
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.footerPaws {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.footerPaw {
+  position: absolute;
+  color: var(--color-white);
+}
+
+.footerContent {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+}
+
+.footerIconWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.decorSection {
+  position: relative;
+  flex: 1;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.decorIconsGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0.18;
+}
+
+.decorFloating {
+  position: absolute;
+  color: var(--color-white);
+  opacity: 0.1;
 }

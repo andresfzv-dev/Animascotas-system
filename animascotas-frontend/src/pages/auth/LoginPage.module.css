@@ -3,21 +3,64 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-background);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1b5e20 0%, var(--color-primary) 45%, #4caf50 100%);
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08) 0, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,0.08) 0, transparent 40%);
+  pointer-events: none;
+}
+
+.pawsLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+}
+
+.paw {
+  position: absolute;
+  color: var(--color-white);
+}
+
+.decorIcon {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .card {
+  position: relative;
+  z-index: 1;
   background-color: var(--color-white);
   border-radius: var(--border-radius-lg);
   padding: 48px 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
 }
 
 .brand {
   text-align: center;
   margin-bottom: 32px;
+}
+
+.brandIconWrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: 2px solid var(--color-background);
 }
 
 .brand h1 {

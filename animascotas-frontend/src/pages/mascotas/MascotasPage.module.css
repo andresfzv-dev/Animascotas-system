@@ -192,3 +192,13 @@
   color: var(--color-text-muted);
   margin-top: 2px;
 }
+
+.cardActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardActions button {
+  width: 100%;
+}

@@ -28,3 +28,7 @@ export const getGanancia = async (inicio, fin) => {
   });
   return data;
 };
+
+export const deleteVenta = async (id) => {
+  await axiosInstance.delete(`/ventas/${id}`);
+};

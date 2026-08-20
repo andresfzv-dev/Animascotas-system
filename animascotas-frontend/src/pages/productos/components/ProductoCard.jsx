@@ -5,13 +5,32 @@ import PresentacionFormModal from './PresentacionFormModal';
 import AjusteStockModal from './AjusteStockModal';
 import styles from './ProductoCard.module.css';
 
-const ProductoCard = ({ producto, onEditar }) => {
+const ProductoCard = ({ producto, onEditar, soloStockBajo, search }) => {
   const [isPresentacionModalOpen, setIsPresentacionModalOpen] = useState(false);
   const [isAjusteModalOpen, setIsAjusteModalOpen] = useState(false);
   const [presentacionSeleccionada, setPresentacionSeleccionada] = useState(null);
   const [presentacionAjuste, setPresentacionAjuste] = useState(null);
 
   const tieneStockBajo = producto.presentaciones.some((p) => p.stockBajo);
+
+  const esBusquedaCodigo = search && search.length > 1 &&
+    producto.presentaciones.some(
+      (p) => p.codigoBarras?.toLowerCase().includes(search.toLowerCase())
+    ) &&
+    !producto.nombre.toLowerCase().includes(search.toLowerCase());
+
+  const presentacionesMostradas = (() => {
+    let result = producto.presentaciones;
+    if (soloStockBajo) {
+      result = result.filter((p) => p.stockBajo);
+    }
+    if (esBusquedaCodigo) {
+      result = result.filter((p) =>
+        p.codigoBarras?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    return result;
+  })();
 
   const handleNuevaPresentacion = () => {
     setPresentacionSeleccionada(null);
@@ -63,11 +82,11 @@ const ProductoCard = ({ producto, onEditar }) => {
             </button>
           </div>
 
-          {producto.presentaciones.length === 0 ? (
+          {presentacionesMostradas.length === 0 ? (
             <p className={styles.sinPresentaciones}>Sin presentaciones</p>
           ) : (
             <div className={styles.presentacionesList}>
-              {producto.presentaciones.map((p) => (
+              {presentacionesMostradas.map((p) => (
                 <div
                   key={p.id}
                   className={`${styles.presentacion} ${p.stockBajo ? styles.stockBajo : ''}`}

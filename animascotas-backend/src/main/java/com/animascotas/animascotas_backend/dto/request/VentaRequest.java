@@ -32,4 +32,7 @@ public class VentaRequest {
 
     private String descripcionServicio;
     private BigDecimal totalServicio;
+
+    private BigDecimal montoEfectivo;
+    private BigDecimal montoTransferencia;
 }

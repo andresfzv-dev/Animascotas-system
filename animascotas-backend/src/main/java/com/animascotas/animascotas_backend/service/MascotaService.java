@@ -101,4 +101,13 @@ public class MascotaService {
                 vacuna.getPrecio()
         );
     }
+
+    public List<VacunaResponse> listarVacunasPorMascota(String mascotaId) {
+        LocalDate hoy = LocalDate.now();
+        return vacunaRepository.findByMascotaId(mascotaId)
+                .stream()
+                .sorted((a, b) -> b.getFechaAplicacion().compareTo(a.getFechaAplicacion()))
+                .map(v -> toVacunaResponse(v, hoy))
+                .toList();
+    }
 }

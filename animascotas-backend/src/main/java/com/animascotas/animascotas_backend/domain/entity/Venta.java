@@ -56,4 +56,10 @@ public class Venta {
 
     @Column(length = 200)
     private String descripcionServicio;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal montoEfectivo;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal montoTransferencia;
 }

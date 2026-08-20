@@ -32,11 +32,14 @@ const ProductosPage = () => {
   const productosFiltrados = productos
     .filter((p) => {
       const matchNombre = p.nombre.toLowerCase().includes(search.toLowerCase());
+      const matchCodigo = p.presentaciones.some(
+        (pres) => pres.codigoBarras?.toLowerCase().includes(search.toLowerCase())
+      );
       const matchCategoria = categoriaFiltro ? p.categoria === categoriaFiltro : true;
       const matchStockBajo = soloStockBajo
         ? p.presentaciones.some((pres) => pres.stockBajo)
         : true;
-      return matchNombre && matchCategoria && matchStockBajo;
+      return (matchNombre || matchCodigo) && matchCategoria && matchStockBajo;
     })
     .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
@@ -74,7 +77,7 @@ const ProductosPage = () => {
         <SearchBar
           value={search}
           onChange={setSearch}
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar por nombre o código de barras..."
         />
 
         <select
@@ -107,6 +110,8 @@ const ProductosPage = () => {
               key={producto.id}
               producto={producto}
               onEditar={handleEditarProducto}
+              soloStockBajo={soloStockBajo}
+              search={search}
             />
           ))}
         </div>

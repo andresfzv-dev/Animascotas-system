@@ -11,4 +11,6 @@ public class ClienteResponse {
     private String nombre;
     private String telefono;
     private Boolean activo;
+    private Boolean tieneCredito;
+    private Boolean tieneVacunas;
 }

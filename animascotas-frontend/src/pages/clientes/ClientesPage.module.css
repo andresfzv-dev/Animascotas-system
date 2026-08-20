@@ -45,3 +45,33 @@
   display: flex;
   gap: 8px;
 }
+
+.filtrosBar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filtroToggle {
+  padding: 8px 14px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.filtroToggle:hover {
+  background-color: var(--color-background);
+}
+
+.filtroToggleActive {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}

@@ -3,7 +3,7 @@ spring:
     name: animascotas-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/animascotas
+    url: jdbc:postgresql://localhost:5433/animascotas
     username: animascotas_user
     password: animascotas_pass
     driver-class-name: org.postgresql.Driver
@@ -17,6 +17,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: 8080
 
@@ -24,3 +29,4 @@ app:
   jwt:
     secret: "animascotas-secret-key-super-segura-minimo-256-bits-para-hs256-2024"
     expiration-ms: 86400000
+  upload-dir: ${APP_UPLOAD_DIR:./uploads}

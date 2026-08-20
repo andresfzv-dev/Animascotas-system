@@ -56,4 +56,9 @@ public class VentaController {
         return ResponseEntity.ok(ventaService.calcularGanancias(inicio, fin));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable String id) {
+        ventaService.eliminarVenta(id);
+        return ResponseEntity.noContent().build();
+    }
 }

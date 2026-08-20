@@ -28,6 +28,7 @@ public class ProductoService {
     private final SintomaRepository sintomaRepository;
     private final MovimientoInventarioRepository movimientoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final VentaItemRepository ventaItemRepository;
 
     public List<ProductoResponse> listarActivos() {
         return productoRepository.findByActivoTrue()
@@ -56,12 +57,11 @@ public class ProductoService {
 
     public PresentacionResponse buscarPorCodigoBarras(String codigoBarras) {
         Presentacion presentacion = presentacionRepository
-                .findByCodigoBarras(codigoBarras)
+                .findByCodigoBarrasAndActivoTrue(codigoBarras)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Presentación", codigoBarras));
         return toPresentacionResponse(presentacion);
     }
-
     public List<PresentacionResponse> listarStockBajo() {
         return presentacionRepository.findStockBajo()
                 .stream()
@@ -245,6 +245,7 @@ public class ProductoService {
     private ProductoResponse toResponse(Producto producto) {
         List<PresentacionResponse> presentaciones = producto.getPresentaciones()
                 .stream()
+                .filter(p -> p.getActivo() != null && p.getActivo())
                 .map(this::toPresentacionResponse)
                 .toList();
         return new ProductoResponse(
@@ -280,7 +281,8 @@ public class ProductoService {
     @Transactional
     public void eliminarPresentacion(String presentacionId) {
         Presentacion presentacion = findPresentacionOrThrow(presentacionId);
-        movimientoRepository.deleteByPresentacionId(presentacionId);
-        presentacionRepository.delete(presentacion);
+        presentacion.setCodigoBarras(null);
+        presentacion.setActivo(false);
+        presentacionRepository.save(presentacion);
     }
 }

@@ -44,4 +44,10 @@ public class MascotaController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(mascotaService.registrarVacuna(mascotaId, request));
     }
+
+    @GetMapping("/{mascotaId}/vacunas")
+    public ResponseEntity<List<VacunaResponse>> listarVacunasPorMascota(
+            @PathVariable String mascotaId) {
+        return ResponseEntity.ok(mascotaService.listarVacunasPorMascota(mascotaId));
+    }
 }
