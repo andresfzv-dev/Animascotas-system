@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
@@ -27,17 +28,17 @@ public class BackupController {
     private String getPgDumpPath() {
         String host = getDbHost();
         if (host.equals("db")) {
-            return "pg_dump"; // En Docker, pg_dump está en el PATH
+            return "pg_dump";
         }
-        return "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe";
+        return "C:\\Program Files\\PostgreSQL\\16\\bin\\pg_dump.exe";
     }
 
     private String getPsqlPath() {
         String host = getDbHost();
         if (host.equals("db")) {
-            return "psql"; // En Docker, psql está en el PATH
+            return "psql";
         }
-        return "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe";
+        return "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe";
     }
 
     private String getDbPassword() {
@@ -86,17 +87,32 @@ public class BackupController {
             pb.redirectErrorStream(true);
 
             Process process = pb.start();
+
+            // Leemos la salida en un hilo aparte para no perder el mensaje real
+            // de psql cuando el pipe se rompe (proceso muerto antes de tiempo).
+            StringBuilder output = new StringBuilder();
+            Thread readerThread = new Thread(() -> {
+                try (InputStream is = process.getInputStream()) {
+                    output.append(new String(is.readAllBytes()));
+                } catch (IOException ignored) {
+                }
+            });
+            readerThread.start();
+
             try (OutputStream os = process.getOutputStream();
                  InputStream is = archivo.getInputStream()) {
                 is.transferTo(os);
+            } catch (IOException e) {
+                // Pipe roto porque psql ya terminó; el hilo de lectura
+                // ya habrá capturado el motivo real en 'output'.
             }
 
-            String output = new String(process.getInputStream().readAllBytes());
+            readerThread.join();
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
                 return ResponseEntity.status(500)
-                        .body("Error al importar el backup");
+                        .body("Error al importar el backup: " + output.toString().trim());
             }
 
             return ResponseEntity.ok("Backup importado correctamente");
